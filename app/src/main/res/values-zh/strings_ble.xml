@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ble_error_scan_failed">BLE 扫描失败（%1$d）</string>
+    <string name="ble_error_off">蓝牙已关闭</string>
+    <string name="ble_error_scanner_unavailable">BLE 扫描器不可用</string>
+    <string name="ble_error_start_failed">BLE 启动失败</string>
+    <string name="ble_hint_retrying">BLE 正在重试</string>
+    <string name="ble_hint_off">蓝牙已关闭</string>
+    <string name="ble_hint_unavailable">BLE 不可用</string>
+    <string name="ble_hint_cycling">BLE 正在循环</string>
+    <string name="ble_hint_parked">BLE 已暂停 · 正在重启</string>
+</resources>

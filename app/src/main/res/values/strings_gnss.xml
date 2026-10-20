@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GNSS popup and status copy -->
+    <string name="gnss_msg_intro">Fieldwatch watches this phone’s GPS receiver and notices a change. If this was already happening when the check started, it can be missed.</string>
+    <string name="gnss_msg_router">A Wi-Fi router or other electronics next to the phone can cause this. Fieldwatch cannot tell where it comes from or how far away it is.</string>
+    <string name="gnss_msg_spoof_limit">Spoofing checks are partial. A careful spoofer can avoid them. A wrong position can also be a side effect of interference.</string>
+    <string name="gnss_msg_mock">A mock location app is on. That is the developer mock-location switch, not a radio spoofer.</string>
+    <string name="gnss_msg_paused">GNSS paused by the phone</string>
+    <string name="gnss_msg_adapted_body">The receiver may have adapted. The condition may still be present.</string>
+    <string name="gnss_msg_popup_adapted">The receiver may have adjusted. The condition may still be there.</string>
+    <string name="gnss_msg_title">%1$s (%2$s)</string>
+    <string name="gnss_msg_banner">%1$s · %2$s</string>
+    <string name="gnss_msg_ended">%1$s ended %2$s</string>
+    <string name="gnss_msg_report_line">%1$s UTC. %2$s. %3$s. %4$s.%5$s</string>
+    <string name="gnss_msg_ended_suffix"> Ended %1$s UTC.</string>
+    <string name="gnss_msg_report_spoofing">Possible GNSS spoofing</string>
+    <string name="gnss_msg_report_mock">Mock location app</string>
+    <string name="gnss_msg_report_interference">Possible GNSS interference</string>
+    <string name="gnss_msg_head_mock">Mock location app</string>
+    <string name="gnss_msg_head_both">Possible GNSS interference and spoofing</string>
+    <string name="gnss_msg_head_spoofing">Possible GNSS spoofing</string>
+    <string name="gnss_msg_head_interference">Possible GNSS interference</string>
+    <string name="gnss_msg_why_gain_lost">The receiver turned its gain down and lost satellites.</string>
+    <string name="gnss_msg_why_two_systems">This phone’s GPS got weaker on more than one satellite system. The receiver turned its gain down and the signals dropped.</string>
+    <string name="gnss_msg_why_both_dropped">This phone’s GPS got weaker. The receiver turned its gain down and the satellite signals dropped.</string>
+    <string name="gnss_msg_why_signal_only">The satellite signals got weaker. This phone is not reporting receiver gain, so this hint is lighter.</string>
+    <string name="gnss_msg_why_gain_only">The receiver turned its gain down more than usual. The satellite signals did not drop as much.</string>
+    <string name="gnss_msg_why_spoof_gain">The receiver turned its gain down, and the satellite signals stayed up.</string>
+    <string name="gnss_msg_why_spoof_clock">The GPS clock does not match network time.</string>
+    <string name="gnss_msg_why_spoof_position">The GPS position does not match the network position.</string>
+    <string name="gnss_msg_why_spoof_jumped">The GPS position jumped faster than this phone could have moved.</string>
+    <string name="gnss_msg_why_spoof_faded">Several satellite signals faded at the same time. A hand, a roof, or a pocket can do that too.</string>
+    <string name="gnss_msg_why_spoof_faded_gain">Several satellite signals also faded together.</string>
+    <string name="gnss_msg_why_spoof_interference">The interference on this phone can cause that too.</string>
+    <string name="gnss_msg_note_both">A router, a charger, or another phone against this one can do the same thing. A wrong position can come from that too. Fieldwatch cannot tell the source or how far away it is.</string>
+    <string name="gnss_msg_note_spoof">This is a hint. A careful fake GPS signal can get past these checks. Fieldwatch cannot tell the source or how far away it is.</string>
+    <string name="gnss_msg_note_interference">A router, a charger, or another phone against this one can do the same thing. Fieldwatch cannot tell the source or how far away it is.</string>
+    <string name="gnss_msg_phrase_mock">Mock location app is on</string>
+    <string name="gnss_msg_phrase_spoof">Possible G P S spoofing. Position may be wrong.</string>
+    <string name="gnss_msg_phrase_interference">Possible G P S interference</string>
+    <string name="gnss_msg_settling">settling %1$ds</string>
+    <string name="gnss_msg_signal_changed">Signal changed.</string>
+    <string name="gnss_msg_learning">learning %1$d/%2$d s</string>
+    <string name="gnss_msg_alert">ALERT: %1$s (%2$s)</string>
+    <string name="gnss_msg_kind_spoofing">spoofing</string>
+    <string name="gnss_msg_kind_mock">mock location</string>
+    <string name="gnss_msg_kind_interference">interference</string>
+    <string name="gnss_msg_no_agc">AGC not available on this phone. Signal-strength only, low confidence.</string>
+    <string name="gnss_msg_armed">armed</string>
+    <string name="gnss_msg_note_gain">Gain is down and the signal is not.</string>
+    <string name="gnss_msg_note_clock">GPS time and network time disagree.</string>
+    <string name="gnss_msg_note_position">GPS position and network position disagree.</string>
+    <string name="gnss_msg_note_jumped">The GPS position jumped faster than travel.</string>
+    <string name="gnss_msg_note_fading">Satellite signals are fading together.</string>
+    <string name="gnss_msg_note_side_effect">This may be a side effect of interference.</string>
+    <string name="gnss_msg_band_line">%1$s: AGC %2$s, signal %3$s, %4$d satellites</string>
+    <string name="gnss_msg_band_text">%1$s: AGC %2$s, signal %3$s, %4$d satellites (baseline %5$s)</string>
+    <string name="gnss_msg_na">n/a</string>
+    <string name="gnss_msg_band">band</string>
+
+    <!-- GNSS calibration -->
+    <string name="gnss_cal_complete_good">Calibration complete. This phone is Good. It should work with a steady view of the sky, away from other electronics.</string>
+    <string name="gnss_cal_complete_fair">Calibration complete. This phone is Fair. Usable. Small drops will be hard to separate from this phone’s own GPS. Medium or Low will be steadier than High.</string>
+    <string name="gnss_cal_complete_poor">Calibration complete. This phone is Poor. This phone’s GPS is too coarse for an interference alert. It can still tag a path. The popup stays off.</string>
+    <string name="gnss_cal_diag">GNSS calibration</string>
+    <string name="gnss_cal_not_run">not run</string>
+    <string name="gnss_cal_calibrated">Calibrated</string>
+    <string name="gnss_cal_signal_at">GPS signal at calibration</string>
+    <string name="gnss_cal_signal_value">%1$s dB-Hz, wander %2$s dB</string>
+    <string name="gnss_cal_gain_wander">Gain wander</string>
+    <string name="gnss_cal_not_reported">not reported</string>
+    <string name="gnss_cal_reject_not_enough">Not enough GPS readings. Stay outside, hold still, and try again.</string>
+    <string name="gnss_cal_reject_no_fix">No GPS fix. Stand outside, hold still, and try again.</string>
+    <string name="gnss_cal_reject_moving">The phone was moving. Stand still and try again.</string>
+    <string name="gnss_cal_reject_satellites">Too few satellites. Stand in the open, away from a roof and a router, and try again.</string>
+    <string name="gnss_cal_reject_weak">The GPS signal was too weak for a calibration. Stand in the open and try again.</string>
+</resources>

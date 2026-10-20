@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Models / sighting rows -->
+    <string name="hidden_ssid">&lt;hidden&gt;</string>
+    <string name="status_crumb_rand">rand</string>
+    <string name="status_crumb_pair">pair</string>
+    <string name="status_crumb_gone">gone</string>
+    <string name="spoken_radio">radio</string>
+    <string name="spoken_unmatched">unmatched</string>
+</resources>

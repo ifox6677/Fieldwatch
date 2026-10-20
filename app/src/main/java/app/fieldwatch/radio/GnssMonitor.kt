@@ -1,0 +1,831 @@
+package app.fieldwatch.radio
+
+import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.GnssMeasurement
+import android.location.GnssMeasurementRequest
+import android.location.GnssMeasurementsEvent
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
+import android.os.SystemClock
+import androidx.core.content.ContextCompat
+import androidx.core.location.GnssStatusCompat
+import androidx.core.location.LocationManagerCompat
+import androidx.core.os.ExecutorCompat
+import app.fieldwatch.AppText
+import app.fieldwatch.FieldwatchApp
+import app.fieldwatch.R
+import app.fieldwatch.domain.BandEpoch
+import app.fieldwatch.domain.BandKey
+import app.fieldwatch.domain.Geo
+import app.fieldwatch.domain.GnssAlerts
+import app.fieldwatch.domain.GnssBands
+import app.fieldwatch.domain.GnssCalAttempt
+import app.fieldwatch.domain.GnssCalFix
+import app.fieldwatch.domain.GnssCalOutcome
+import app.fieldwatch.domain.GnssCalUi
+import app.fieldwatch.domain.GnssKind
+import app.fieldwatch.domain.GnssCalibration
+import app.fieldwatch.domain.GnssConfig
+import app.fieldwatch.domain.GnssConfidence
+import app.fieldwatch.domain.GnssCopy
+import app.fieldwatch.domain.GnssCue
+import app.fieldwatch.domain.GnssDetector
+import app.fieldwatch.domain.GnssEpoch
+import app.fieldwatch.domain.GnssLive
+import app.fieldwatch.domain.GnssMark
+import app.fieldwatch.domain.GnssNotice
+import app.fieldwatch.domain.GnssSide
+import app.fieldwatch.domain.GnssPhoneProfile
+import app.fieldwatch.domain.GnssPositionWitness
+import app.fieldwatch.domain.GnssSnapshot
+import app.fieldwatch.domain.GpsSample
+import app.fieldwatch.domain.AppSettings
+import java.util.concurrent.Executor
+import kotlin.math.abs
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+data class GnssReading(
+    val notice: GnssNotice? = null,
+    val diagRows: List<Pair<String, String>> = listOf(
+        AppText.get(R.string.gnss_diag_monitor, "GNSS monitor") to
+            AppText.get(R.string.gnss_diag_off, "off"),
+    ),
+    val marks: List<GnssMark> = emptyList(),
+    val lives: List<GnssLive> = emptyList(),
+    val statusLine: String = "",
+)
+
+/**
+ * Listens to the phone's own GNSS receiver while the scan service is up.
+ * Starts about a second after the radios so it does not share their first frame.
+ */
+class GnssMonitor(private val app: FieldwatchApp) {
+    private val detector = GnssDetector()
+    private val alerts = GnssAlerts()
+    private val _reading = MutableStateFlow(GnssReading())
+    val reading: StateFlow<GnssReading> = _reading.asStateFlow()
+    private val _calibration = MutableStateFlow(GnssCalUi())
+    val calibration: StateFlow<GnssCalUi> = _calibration.asStateFlow()
+
+    private var thread: HandlerThread? = null
+    private var handler: Handler? = null
+    private var executor: Executor? = null
+    private var running = false
+    @Volatile private var calibrating = false
+    val isCalibrating: Boolean get() = calibrating
+    private var calToken = 0
+    private var calRun = 0
+    private var calStart = 0L
+    private var calGpsOn = false
+    private val calEpochs = ArrayList<GnssEpoch>()
+    private val calFixes = ArrayList<GnssCalFix>()
+    private var callbackOn = false
+    private var statusOn = false
+    private var engineStopped = false
+    private var fullTracking = false
+    private var ownLocation = false
+    private var ownNetOn = false
+    private var wantOwn = false
+    private var receiverOn = false
+    private var floor = GnssConfidence.MEDIUM
+    private var suppressAlerts = false
+    private var beepOn = true
+    private var voiceOn = false
+    private var shadeOn = false
+    private var lastCue = ""
+    private var lastAlert = AppText.get(R.string.gnss_diag_none, "none")
+    private var lastSnap: GnssSnapshot? = null
+    private var gotMeas = false
+    private var gpsProviderOff = false
+    private val noData = Runnable {
+        if (running && !gotMeas) {
+            blocked = app.getString(R.string.gnss_diag_blocked_no_raw)
+            raw = app.getString(R.string.gnss_diag_not_supported)
+            publish(lastSnap, _reading.value.notice)
+        }
+    }
+
+    private var hardware = AppText.get(R.string.gnss_diag_unknown, "unknown")
+    private var year = AppText.get(R.string.gnss_diag_unknown, "unknown")
+    private var raw = AppText.get(R.string.gnss_diag_unknown, "unknown")
+    private var agcSource = AppText.get(R.string.gnss_diag_checking, "checking")
+    private var fullLabel = AppText.get(R.string.diag_value_off, "off")
+    private var networkTime = AppText.get(R.string.gnss_diag_unavailable, "unavailable")
+    private var blocked = ""
+    private var events = 0
+    private var sawEvent = false
+    private var sawMeas = false
+
+    private var timeDisagree = false
+    private var positionDisagree = false
+    private var positionSince = 0L
+    private var hopLeft = 0
+    private var mockOn = false
+    private var lastGps: Fix? = null
+    private var lastNet: Fix? = null
+
+    private val main = Handler(Looper.getMainLooper())
+
+    private val stalled = Runnable {
+        if (!running || calibrating || !gotMeas) return@Runnable
+        deliver(detector.onEpoch(gapEpoch(), side()))
+    }
+
+    private val gnssStatus = object : GnssStatusCompat.Callback() {
+        override fun onStarted() {
+            engineStopped = false
+        }
+
+        override fun onStopped() {
+            engineStopped = true
+            if (!running || calibrating) return
+            deliver(detector.onEpoch(gapEpoch(), side()))
+        }
+    }
+
+    private val callback = object : GnssMeasurementsEvent.Callback() {
+        override fun onGnssMeasurementsReceived(event: GnssMeasurementsEvent) {
+            gotMeas = true
+            blocked = ""
+            gpsProviderOff = false
+            handler?.removeCallbacks(stalled)
+            if (calibrating) {
+                calEpochs += toEpoch(event)
+                return
+            }
+            val snap = detector.onEpoch(toEpoch(event), side())
+            deliver(snap)
+            handler?.postDelayed(stalled, 3_000L)
+        }
+
+        override fun onStatusChanged(status: Int) {
+            when (status) {
+                STATUS_NOT_SUPPORTED -> {
+                    raw = app.getString(R.string.gnss_diag_not_supported)
+                    blocked = app.getString(R.string.gnss_diag_blocked_raw_unsupported)
+                }
+                STATUS_LOCATION_DISABLED -> {
+                    gpsProviderOff = true
+                    blocked = app.getString(R.string.gnss_diag_blocked_gps_off)
+                }
+                else -> if (gpsProviderOff) {
+                    gpsProviderOff = false
+                    blocked = ""
+            gpsProviderOff = false
+                }
+            }
+            publish(lastSnap, _reading.value.notice)
+        }
+    }
+
+    private val providers = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            handler?.post { refreshProviders() }
+        }
+    }
+
+    private val ownGps = LocationListener { loc -> ingestFix(snapFix(loc, gps = true)) }
+    private val ownNet = LocationListener { loc -> ingestFix(snapFix(loc, gps = false)) }
+
+    fun sync(settings: AppSettings, profile: GnssPhoneProfile?) {
+        if (calibrating) return
+        if (!settings.gnssMonitor || profile == null) {
+            stop()
+            return
+        }
+        ensureThread()
+        handler?.post {
+            if (calibrating) return@post
+            detector.config = GnssConfig(
+                sensitivity = settings.gnssSensitivity,
+                spoofChecks = settings.gnssSpoofChecks,
+                correlation = settings.gnssCorrelation,
+                invertAgc = settings.gnssInvertAgc,
+                agcFloorDb = profile.agcFloorDb,
+                cn0FloorDb = profile.cn0FloorDb,
+                ignoreStopped = profile.ignoreStopped,
+            )
+            floor = settings.gnssAlertFloor.toConfidence()
+            suppressAlerts = profile.suppressAlerts
+            beepOn = settings.gnssBeep
+            voiceOn = settings.gnssVoice
+            shadeOn = settings.gnssShade
+            if (!shadeOn) main.post { app.alerter.clearGnssNote() }
+            fullLabel = app.getString(
+                if (settings.gnssFullTracking && Build.VERSION.SDK_INT >= 31) {
+                    R.string.diag_value_on
+                } else {
+                    R.string.diag_value_off
+                },
+            )
+            wantOwn = !settings.tagLocation
+            if (!running) startLocked(settings) else {
+                val wantFull = settings.gnssFullTracking && Build.VERSION.SDK_INT >= 31
+                if (wantFull != fullTracking && callbackOn) {
+                    unregisterCallback()
+                    registerCallback(wantFull)
+                }
+                syncOwnLocation()
+                publish(lastSnap, _reading.value.notice)
+            }
+        }
+    }
+
+    fun stop() {
+        if (calibrating) return
+        val h = handler
+        if (h == null) {
+            _reading.value = _reading.value.copy(
+                notice = null,
+                lives = emptyList(),
+                diagRows = listOf(
+                    app.getString(R.string.gnss_diag_monitor) to
+                        app.getString(R.string.gnss_diag_off),
+                ),
+                statusLine = "",
+            )
+            return
+        }
+        h.post {
+            teardown()
+            _reading.value = _reading.value.copy(
+                notice = null,
+                lives = emptyList(),
+                diagRows = listOf(
+                    app.getString(R.string.gnss_diag_monitor) to
+                        app.getString(R.string.gnss_diag_off),
+                ),
+                statusLine = "",
+            )
+        }
+    }
+
+    fun dismiss() {
+        handler?.post {
+            alerts.dismiss()
+            val snap = lastSnap ?: return@post
+            val shown = alerts.onLives(snap.lives, floor, System.currentTimeMillis())
+            publish(snap, shown.notice)
+        }
+    }
+
+    /** Tagging fixes. Copied here so the location object can be reused by Android. */
+    fun onTaggedFix(loc: Location, gps: Boolean) {
+        val fix = snapFix(loc, gps)
+        val h = handler ?: return
+        if (Looper.myLooper() == h.looper) ingestFix(fix) else h.post { ingestFix(fix) }
+    }
+
+    fun marks(): List<GnssMark> = _reading.value.marks
+
+    private fun startLocked(settings: AppSettings) {
+        val lm = manager() ?: return
+        if (!fine()) {
+            blocked = app.getString(R.string.gnss_diag_blocked_no_permission)
+            running = false
+            publish(null, null)
+            return
+        }
+        probeHardware(lm)
+        if (Build.VERSION.SDK_INT >= 31 && !lm.gnssCapabilities.hasMeasurements()) {
+            raw = app.getString(R.string.gnss_diag_not_supported)
+            blocked = app.getString(R.string.gnss_diag_blocked_raw_unsupported)
+            running = true
+            publish(null, null)
+            return
+        }
+        if (Build.VERSION.SDK_INT < 31) {
+            raw = app.getString(R.string.gnss_diag_unknown_api, Build.VERSION.SDK_INT)
+        }
+        registerReceiver()
+        val wantFull = settings.gnssFullTracking && Build.VERSION.SDK_INT >= 31
+        registerCallback(wantFull)
+        running = true
+        gotMeas = false
+        handler?.removeCallbacks(noData)
+        handler?.postDelayed(noData, 30_000L)
+        syncOwnLocation()
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            gpsProviderOff = true
+            blocked = app.getString(R.string.gnss_diag_blocked_gps_off)
+        } else {
+            gpsProviderOff = false
+        }
+        publish(null, null)
+    }
+
+    private fun teardown() {
+        handler?.removeCallbacks(noData)
+        handler?.removeCallbacks(stalled)
+        engineStopped = false
+        unregisterCallback()
+        unregisterReceiver()
+        releaseOwnLocation()
+        detector.reset()
+        alerts.reset()
+        lastSnap = null
+        lastCue = ""
+        timeDisagree = false
+        positionDisagree = false
+        positionSince = 0L
+        hopLeft = 0
+        mockOn = false
+        running = false
+        blocked = ""
+        gotMeas = false
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun registerCallback(full: Boolean) {
+        val lm = manager() ?: return
+        val exec = executor ?: return
+        runCatching {
+            if (Build.VERSION.SDK_INT >= 31 && full) {
+                val request = GnssMeasurementRequest.Builder().setFullTracking(true).build()
+                lm.registerGnssMeasurementsCallback(request, exec, callback)
+            } else {
+                LocationManagerCompat.registerGnssMeasurementsCallback(lm, exec, callback)
+            }
+            callbackOn = true
+            fullTracking = full
+        }
+        runCatching {
+            LocationManagerCompat.registerGnssStatusCallback(lm, exec, gnssStatus)
+            statusOn = true
+        }
+    }
+
+    private fun unregisterCallback() {
+        val lm = manager() ?: return
+        if (callbackOn) {
+            runCatching { LocationManagerCompat.unregisterGnssMeasurementsCallback(lm, callback) }
+            callbackOn = false
+        }
+        if (statusOn) {
+            runCatching { LocationManagerCompat.unregisterGnssStatusCallback(lm, gnssStatus) }
+            statusOn = false
+        }
+    }
+
+    private fun registerReceiver() {
+        if (receiverOn) return
+        val filter = IntentFilter().apply {
+            addAction(LocationManager.PROVIDERS_CHANGED_ACTION)
+            addAction(LocationManager.MODE_CHANGED_ACTION)
+        }
+        runCatching {
+            ContextCompat.registerReceiver(app, providers, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+            receiverOn = true
+        }
+    }
+
+    private fun unregisterReceiver() {
+        if (!receiverOn) return
+        runCatching { app.unregisterReceiver(providers) }
+        receiverOn = false
+    }
+
+    /**
+     * A GPS fix request stays up the whole time the check runs, including when path
+     * tagging already has its own request. That path request can wait for 8 m of
+     * movement, which lets the chip rest while the phone is still. Distance 0 keeps
+     * the session alive. Full tracking stays the Settings switch.
+     */
+    @SuppressLint("MissingPermission")
+    private fun syncOwnLocation() {
+        val lm = manager() ?: return
+        if (!running || !fine()) {
+            releaseOwnLocation()
+            return
+        }
+        val looper = handler?.looper ?: return
+        val gpsOn = runCatching { lm.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrDefault(false)
+        if (!gpsOn) {
+            releaseOwnLocation()
+            return
+        }
+        if (!ownLocation) {
+            runCatching {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1_000L, 0f, ownGps, looper)
+                ownLocation = true
+            }
+        }
+        val wantNet = wantOwn &&
+            runCatching { lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) }.getOrDefault(false)
+        if (wantNet && !ownNetOn) {
+            runCatching {
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4_000L, 0f, ownNet, looper)
+                ownNetOn = true
+            }
+        } else if (!wantNet && ownNetOn) {
+            runCatching { lm.removeUpdates(ownNet) }
+            ownNetOn = false
+        }
+    }
+
+    private fun releaseOwnLocation() {
+        if (!ownLocation && !ownNetOn) return
+        val lm = manager() ?: return
+        if (ownLocation) runCatching { lm.removeUpdates(ownGps) }
+        if (ownNetOn) runCatching { lm.removeUpdates(ownNet) }
+        ownLocation = false
+        ownNetOn = false
+    }
+
+    private fun refreshProviders() {
+        val lm = manager() ?: return
+        val providerOff = !lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        gpsProviderOff = providerOff
+        blocked = if (providerOff) {
+            app.getString(R.string.gnss_diag_blocked_gps_off)
+        } else {
+            ""
+        }
+        if (running) syncOwnLocation()
+        publish(lastSnap, _reading.value.notice)
+    }
+
+    private fun deliver(snap: GnssSnapshot) {
+        lastSnap = snap
+        val alertLives = if (suppressAlerts) snap.lives.filter { it.kind == GnssKind.MOCK } else snap.lives
+        val shown = alerts.onLives(alertLives, floor, System.currentTimeMillis())
+        shown.cue?.let { fire(it) }
+        publish(snap.copy(lives = alertLives), shown.notice)
+    }
+
+    /** About a minute, outside, standing still. The check stays off until a result is saved. */
+    fun startCalibration() {
+        if (calibrating) return
+        calibrating = true
+        ensureThread()
+        val token = ++calToken
+        handler?.post { beginCalibration(token) }
+    }
+
+    fun stopCalibration() {
+        if (!calibrating) return
+        calToken++
+        handler?.post {
+            endCalibration(GnssCalUi(
+                rejection = app.getString(R.string.gnss_diag_cal_stopped),
+            ))
+        }
+    }
+
+    private val calTick: Runnable = Runnable {
+        if (!calibrating || calRun != calToken) return@Runnable
+        val elapsed = SystemClock.elapsedRealtime() - calStart
+        if (elapsed >= GnssCalibration.DURATION_MS) {
+            val outcome = GnssCalibration.grade(
+                GnssCalAttempt(
+                    epochs = calEpochs.toList(),
+                    fixes = calFixes.toList(),
+                    startedElapsedMs = calStart,
+                    endedElapsedMs = SystemClock.elapsedRealtime(),
+                ),
+                System.currentTimeMillis(),
+            )
+            if (outcome is GnssCalOutcome.Saved) app.gnssProfile.save(outcome.profile)
+            val rejection = (outcome as? GnssCalOutcome.Rejected)?.reason.orEmpty()
+            endCalibration(GnssCalUi(rejection = rejection))
+            return@Runnable
+        }
+        val left = ((GnssCalibration.DURATION_MS - elapsed + 999) / 1000L).toInt().coerceAtLeast(0)
+        _calibration.value = GnssCalUi(running = true, leftSec = left)
+        handler?.postDelayed(calTick, 1_000L)
+    }
+
+    private fun beginCalibration(token: Int) {
+        if (token != calToken) return
+        calRun = token
+        handler?.removeCallbacks(noData)
+        handler?.removeCallbacks(stalled)
+        engineStopped = false
+        unregisterCallback()
+        unregisterReceiver()
+        releaseOwnLocation()
+        detector.reset()
+        alerts.reset()
+        lastSnap = null
+        running = false
+        _reading.value = _reading.value.copy(notice = null, lives = emptyList(), statusLine = "")
+        calEpochs.clear()
+        calFixes.clear()
+        calStart = SystemClock.elapsedRealtime()
+        if (!fine()) {
+            endCalibration(GnssCalUi(
+                rejection = app.getString(R.string.gnss_diag_cal_no_permission),
+            ))
+            return
+        }
+        val lm = manager()
+        if (lm == null || !lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            endCalibration(GnssCalUi(
+                rejection = app.getString(R.string.gnss_diag_cal_location_off),
+            ))
+            return
+        }
+        probeHardware(lm)
+        registerCallback(false)
+        registerCalGps()
+        _calibration.value = GnssCalUi(running = true, leftSec = 60)
+        handler?.postDelayed(calTick, 1_000L)
+    }
+
+    private fun endCalibration(ui: GnssCalUi) {
+        handler?.removeCallbacks(calTick)
+        unregisterCallback()
+        releaseCalGps()
+        calEpochs.clear()
+        calFixes.clear()
+        calibrating = false
+        _calibration.value = ui
+        main.post { app.syncGnss() }
+    }
+
+    private val calGps = LocationListener { loc ->
+        if (!calibrating || !loc.hasAccuracy()) return@LocationListener
+        calFixes += GnssCalFix(
+            elapsedMs = SystemClock.elapsedRealtime(),
+            accM = loc.accuracy,
+            speedMps = if (loc.hasSpeed()) loc.speed else 0f,
+            lat = loc.latitude,
+            lon = loc.longitude,
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun registerCalGps() {
+        val lm = manager() ?: return
+        val looper = handler?.looper ?: return
+        runCatching {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1_000L, 0f, calGps, looper)
+                calGpsOn = true
+            }
+        }
+    }
+
+    private fun releaseCalGps() {
+        if (!calGpsOn) return
+        val lm = manager() ?: return
+        runCatching { lm.removeUpdates(calGps) }
+        calGpsOn = false
+    }
+
+    private fun fire(cue: GnssCue) {
+        val key = cue.title + "\n" + cue.phrase
+        if (key == lastCue) return
+        lastCue = key
+        lastAlert = app.getString(
+            R.string.gnss_diag_last_alert_format,
+            GnssCopy.localHm(System.currentTimeMillis()),
+            cue.title,
+        )
+        val phrase = if (voiceOn) cue.phrase else null
+        val beep = beepOn
+        val shade = shadeOn
+        main.post {
+            app.alerter.gnssAlert(cue.title, cue.text, phrase, beep, shade)
+        }
+    }
+
+    private fun gapEpoch() = GnssEpoch(
+        elapsedMs = SystemClock.elapsedRealtime(),
+        wallMs = System.currentTimeMillis(),
+        clockDiscontinuity = 0,
+        bands = emptyMap(),
+    )
+
+    private fun side(): GnssSide {
+        val hop = hopLeft > 0
+        if (hopLeft > 0) hopLeft--
+        val gps = lastGps
+        val lost = gps != null && System.currentTimeMillis() - gps.wall > 15_000L
+        return GnssSide(
+            timeDisagree = timeDisagree,
+            positionDisagree = positionDisagree,
+            impossibleHop = hop,
+            mock = mockOn,
+            fixLost = lost,
+            engineStopped = engineStopped,
+        )
+    }
+
+    private fun ingestFix(fix: Fix) {
+        mockOn = fix.mock
+        if (fix.gps) {
+            val prev = lastGps
+            if (prev != null && !Geo.hopPlausible(GpsSample(prev.wall, prev.lat, prev.lon), fix.lat, fix.lon, fix.wall)) {
+                hopLeft = 8
+            }
+            lastGps = fix
+            timeDisagree = timeDelta(fix)
+        } else {
+            lastNet = fix
+        }
+        val now = System.currentTimeMillis()
+        val next = GnssPositionWitness.hold(positionRaw(now), positionSince, now)
+        positionSince = next.sinceMs
+        positionDisagree = next.on
+    }
+
+    private fun positionRaw(now: Long): Boolean {
+        val gps = lastGps ?: return false
+        val net = lastNet ?: return false
+        return GnssPositionWitness.rawDisagree(
+            gpsAccM = gps.acc.toDouble(),
+            netAccM = net.acc.toDouble(),
+            apartM = Geo.meters(gps.lat, gps.lon, net.lat, net.lon),
+            gpsAgeMs = now - gps.wall,
+            netAgeMs = now - net.wall,
+        )
+    }
+
+    private fun timeDelta(fix: Fix): Boolean {
+        if (Build.VERSION.SDK_INT < 33) {
+            networkTime = app.getString(R.string.gnss_diag_unavailable)
+            return false
+        }
+        return runCatching {
+            val net = SystemClock.currentNetworkTimeClock().millis()
+            val gnssNow = fix.time + (SystemClock.elapsedRealtimeNanos() - fix.elapsedNanos) / 1_000_000.0
+            networkTime = app.getString(R.string.gnss_diag_available)
+            abs(net - gnssNow) > 1_000.0
+        }.getOrElse {
+            networkTime = app.getString(R.string.gnss_diag_unavailable)
+            false
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun toEpoch(event: GnssMeasurementsEvent): GnssEpoch {
+        val acc = LinkedHashMap<BandKey, Acc>()
+        if (Build.VERSION.SDK_INT >= 33) {
+            for (agc in event.gnssAutomaticGainControls) {
+                val db = agc.levelDb
+                if (!db.isFinite() || db < -80.0) continue
+                sawEvent = true
+                val key = BandKey(agc.constellationType, GnssBands.ofHz(agc.carrierFrequencyHz.toDouble()))
+                acc.getOrPut(key) { Acc() }.eventAgc = db
+            }
+        }
+        for (m in event.measurements) {
+            val hz = if (m.hasCarrierFrequencyHz()) m.carrierFrequencyHz.toDouble() else null
+            val key = BandKey(m.constellationType, GnssBands.ofHz(hz))
+            val bucket = acc.getOrPut(key) { Acc() }
+            val cn0 = m.cn0DbHz
+            if (cn0.isFinite() && cn0 > 0.0 && (m.state and GnssMeasurement.STATE_CODE_LOCK) != 0) {
+                bucket.cn0 += cn0
+                bucket.sv += 1
+                bucket.bySv[m.svid] = cn0
+            }
+            if (m.hasAutomaticGainControlLevelDb()) {
+                val db = m.automaticGainControlLevelDb
+                if (db.isFinite() && db >= -80.0) {
+                    sawMeas = true
+                    bucket.measAgc += db
+                }
+            }
+        }
+        events++
+        agcSource = when {
+            sawEvent && sawMeas -> app.getString(R.string.gnss_diag_agc_both)
+            sawEvent -> app.getString(R.string.gnss_diag_agc_event)
+            sawMeas -> app.getString(R.string.gnss_diag_agc_measurement)
+            events >= 10 -> app.getString(R.string.gnss_diag_none)
+            else -> app.getString(R.string.gnss_diag_checking)
+        }
+        val bands = acc.mapValues { (_, bucket) ->
+            val eventAgc = bucket.eventAgc
+            val top = bucket.cn0.sortedDescending().take(3)
+            BandEpoch(
+                agcDb = eventAgc ?: median(bucket.measAgc),
+                agcFromEventLevel = eventAgc != null,
+                cn0Top3 = if (top.isEmpty()) null else top.average(),
+                svTracked = bucket.sv,
+                cn0BySv = bucket.bySv.toMap(),
+            )
+        }
+        return GnssEpoch(
+            elapsedMs = SystemClock.elapsedRealtime(),
+            wallMs = System.currentTimeMillis(),
+            clockDiscontinuity = event.clock.hardwareClockDiscontinuityCount,
+            bands = bands,
+        )
+    }
+
+    private fun publish(snap: GnssSnapshot?, notice: GnssNotice?) {
+        _reading.value = GnssReading(
+            notice = notice,
+            diagRows = diag(snap),
+            marks = snap?.marks ?: _reading.value.marks,
+            lives = snap?.lives ?: emptyList(),
+            statusLine = snap?.statusLine.orEmpty(),
+        )
+    }
+
+    private fun diag(snap: GnssSnapshot?): List<Pair<String, String>> {
+        val status = if (blocked.isNotBlank()) {
+            blocked
+        } else {
+            snap?.statusLine ?: app.getString(R.string.gnss_diag_starting)
+        }
+        val rows = ArrayList<Pair<String, String>>()
+        rows += app.getString(R.string.gnss_diag_hardware) to hardware
+        rows += app.getString(R.string.gnss_diag_hardware_year) to year
+        rows += app.getString(R.string.gnss_diag_raw_measurements) to raw
+        rows += app.getString(R.string.gnss_diag_agc_source) to agcSource
+        rows += app.getString(R.string.settings_gnss_full_tracking) to fullLabel
+        rows += app.getString(R.string.gnss_diag_monitor) to status
+        snap?.bandLines?.forEach { line ->
+            val cut = line.indexOf(": ")
+            if (cut > 0) rows += line.substring(0, cut) to line.substring(cut + 2)
+        }
+        rows += app.getString(R.string.gnss_diag_network_time) to networkTime
+        rows += app.getString(R.string.gnss_diag_last_alert) to lastAlert
+        return rows
+    }
+
+    private fun probeHardware(lm: LocationManager) {
+        hardware = LocationManagerCompat.getGnssHardwareModelName(lm)?.ifBlank { null }
+            ?: app.getString(R.string.gnss_diag_unknown)
+        val y = LocationManagerCompat.getGnssYearOfHardware(lm)
+        year = if (y > 0) y.toString() else app.getString(R.string.gnss_diag_unknown)
+        if (Build.VERSION.SDK_INT >= 31) {
+            raw = if (lm.gnssCapabilities.hasMeasurements()) {
+                app.getString(R.string.gnss_diag_supported)
+            } else {
+                app.getString(R.string.gnss_diag_not_supported)
+            }
+        }
+    }
+
+    private fun snapFix(loc: Location, gps: Boolean) = Fix(
+        gps = gps,
+        lat = loc.latitude,
+        lon = loc.longitude,
+        acc = if (loc.hasAccuracy()) loc.accuracy else 99_999f,
+        time = loc.time,
+        wall = System.currentTimeMillis(),
+        elapsedNanos = loc.elapsedRealtimeNanos,
+        mock = isMock(loc),
+    )
+
+    private fun isMock(loc: Location): Boolean =
+        if (Build.VERSION.SDK_INT >= 31) loc.isMock else @Suppress("DEPRECATION") loc.isFromMockProvider
+
+    private fun ensureThread() {
+        if (thread?.isAlive == true && handler != null) return
+        val next = HandlerThread("fw-gnss")
+        next.start()
+        thread = next
+        val h = Handler(next.looper)
+        handler = h
+        executor = ExecutorCompat.create(h)
+    }
+
+    private fun manager(): LocationManager? =
+        app.getSystemService(LocationManager::class.java)
+
+    private fun fine(): Boolean =
+        ContextCompat.checkSelfPermission(app, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+
+    private fun median(values: List<Double>): Double? {
+        if (values.isEmpty()) return null
+        val sorted = values.sorted()
+        val mid = sorted.size / 2
+        return if (sorted.size % 2 == 0) (sorted[mid - 1] + sorted[mid]) / 2.0 else sorted[mid]
+    }
+
+    private data class Fix(
+        val gps: Boolean,
+        val lat: Double,
+        val lon: Double,
+        val acc: Float,
+        val time: Long,
+        val wall: Long,
+        val elapsedNanos: Long,
+        val mock: Boolean,
+    )
+
+    private class Acc {
+        var eventAgc: Double? = null
+        val measAgc = ArrayList<Double>()
+        val cn0 = ArrayList<Double>()
+        val bySv = HashMap<Int, Double>()
+        var sv = 0
+    }
+}

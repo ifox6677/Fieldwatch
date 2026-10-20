@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gnss_diag_monitor">GNSS monitor</string>
+    <string name="gnss_diag_hardware">GNSS hardware</string>
+    <string name="gnss_diag_hardware_year">GNSS hardware year</string>
+    <string name="gnss_diag_raw_measurements">Raw measurements</string>
+    <string name="gnss_diag_agc_source">AGC source</string>
+    <string name="gnss_diag_network_time">Network time</string>
+    <string name="gnss_diag_last_alert">Last GNSS alert</string>
+    <string name="gnss_diag_off">off</string>
+    <string name="gnss_diag_none">none</string>
+    <string name="gnss_diag_starting">starting</string>
+    <string name="gnss_diag_unknown">unknown</string>
+    <string name="gnss_diag_unknown_api">unknown (API %1$d)</string>
+    <string name="gnss_diag_supported">supported</string>
+    <string name="gnss_diag_not_supported">not supported</string>
+    <string name="gnss_diag_available">available</string>
+    <string name="gnss_diag_unavailable">unavailable</string>
+    <string name="gnss_diag_checking">checking</string>
+    <string name="gnss_diag_blocked_no_raw">no raw measurements</string>
+    <string name="gnss_diag_blocked_raw_unsupported">raw measurements not supported</string>
+    <string name="gnss_diag_blocked_gps_off">GPS provider off</string>
+    <string name="gnss_diag_blocked_no_permission">no location permission</string>
+    <string name="gnss_diag_agc_both">event-level and per-measurement</string>
+    <string name="gnss_diag_agc_event">event-level</string>
+    <string name="gnss_diag_agc_measurement">per-measurement</string>
+    <string name="gnss_diag_last_alert_format">%1$s, %2$s</string>
+    <string name="gnss_diag_cal_stopped">Calibration stopped. The last result is unchanged.</string>
+    <string name="gnss_diag_cal_no_permission">Location permission is missing. Grant it, then try again.</string>
+    <string name="gnss_diag_cal_location_off">Turn Location on, stand outside, and try again.</string>
+</resources>

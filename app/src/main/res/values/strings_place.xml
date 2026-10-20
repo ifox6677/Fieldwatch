@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="place_failed_silently">Online lookup failed silently. Coordinates only.</string>
+    <string name="place_skipped_offline">Online lookup skipped: no working internet. Coordinates only.</string>
+    <string name="place_skipped_no_geocoder">Online lookup skipped: this phone has no system geocoder (needs Google Play / network location). Coordinates only.</string>
+    <string name="place_no_gps">Online lookup on, but this sit had no GPS stamps to name.</string>
+    <string name="place_progress">Looking up place names (%1$d of %2$d)…</string>
+    <string name="place_line_no_name">  · %1$s  %2$s  (no name returned)</string>
+    <string name="place_line_name">  · %1$s  %2$s  (%3$s)</string>
+    <string name="place_online_named">Online lookup: system geocoder named %1$d distinct GPS cell(s). Street names are from the phone’s network geocoder, not a Fieldwatch cloud. Approximate.</string>
+    <string name="place_online_none">Online lookup ran, but the system geocoder returned no street names. Coordinates only.</string>
+    <string name="place_stay">Stay %1$d</string>
+    <string name="place_transit_from">Transit from</string>
+    <string name="place_transit_to">Transit to</string>
+    <string name="place_path_start">Path start</string>
+    <string name="place_path_end">Path end</string>
+</resources>

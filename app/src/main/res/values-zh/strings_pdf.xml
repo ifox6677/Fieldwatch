@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pdf_disclaimer">免责声明</string>
+    <string name="pdf_wifi">Wi-Fi</string>
+    <string name="pdf_ble">BLE</string>
+    <string name="pdf_start">起点</string>
+    <string name="pdf_end">终点</string>
+    <string name="pdf_stay">停留</string>
+    <string name="pdf_advertised">广播</string>
+    <string name="pdf_operator">操作员</string>
+    <string name="pdf_gnss">GNSS</string>
+    <string name="pdf_takeaway">要点</string>
+</resources>

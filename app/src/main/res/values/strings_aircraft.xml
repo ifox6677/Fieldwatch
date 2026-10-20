@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="aircraft_advertised_position">Advertised position</string>
+    <string name="aircraft_last">Last %1$s</string>
+    <string name="aircraft_course">course %1$s°</string>
+    <string name="aircraft_one_fix">1 advertised fix</string>
+    <string name="aircraft_fixes">%1$d advertised fixes, %2$s</string>
+    <string name="aircraft_hidden">%1$d more aircraft tracks are listed here and left off the map.</string>
+    <string name="aircraft_broadcast_note">"These positions were broadcast by the radio. They are not this phone's GPS."</string>
+    <string name="aircraft_status_changed">Status changed: %1$s → %2$s</string>
+    <string name="aircraft_no_uas">%1$s, no UAS id: %2$s (%3$s)</string>
+    <string name="aircraft_kicker">AIRCRAFT</string>
+    <string name="aircraft_second_track"> A blue dotted line is the second sit’s advertised track within 2 km of this path.</string>
+    <string name="aircraft_black_track"> A black dotted line is an advertised track within 2 km of this path.</string>
+    <string name="aircraft_compare_both">North-up. Black dots are this sit. Blue dots are the second sit. The marker is the last advertised position.</string>
+    <string name="aircraft_compare_blue">North-up. The blue dotted line is the advertised track for %1$s. The marker is the last advertised position.</string>
+    <string name="aircraft_title">Aircraft</string>
+    <string name="aircraft_last_for">Last advertised position for %1$s. The marker is that position.</string>
+    <string name="aircraft_north_track">North-up. The black dotted line is the advertised track for %1$s. The marker is the last advertised position.</string>
+    <string name="aircraft_uas">UAS %1$s</string>
+    <string name="aircraft_last_coord">last %1$s</string>
+    <string name="aircraft_one_fix_short">1 fix</string>
+    <string name="aircraft_fixes_short">%1$d fixes</string>
+</resources>

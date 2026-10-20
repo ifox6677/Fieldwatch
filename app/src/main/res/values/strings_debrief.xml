@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="debrief_disclaimer">DISCLAIMER</string>
+    <string name="debrief_privacy">Privacy</string>
+    <string name="debrief_aircraft">Aircraft</string>
+    <string name="debrief_environment">Environment</string>
+    <string name="debrief_persistence">Persistence</string>
+    <string name="debrief_anomalies">Anomalies</string>
+    <string name="debrief_flood">Flood</string>
+    <string name="debrief_gnss">GNSS</string>
+    <string name="debrief_generated">Generated</string>
+    <string name="debrief_sit">Sit</string>
+    <string name="debrief_window">Window</string>
+    <string name="debrief_radios">Radios</string>
+    <string name="debrief_tool">Tool</string>
+    <string name="debrief_scan">Scan</string>
+    <string name="debrief_distance">Distance</string>
+    <string name="debrief_places">Places</string>
+    <string name="debrief_classification">Classification</string>
+    <string name="debrief_unknown">unknown</string>
+    <string name="debrief_off">off</string>
+    <string name="debrief_on">on</string>
+    <string name="debrief_sit_kicker">SIT</string>
+    <string name="sd_windows">Windows</string>
+    <string name="sd_caps">Caps</string>
+    <string name="sd_both">both</string>
+    <string name="path_second_sit">Second sit. </string>
+    <string name="path_signal_changed">Signal changed.</string>
+</resources>

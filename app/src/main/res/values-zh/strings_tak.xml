@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tak_status_off">关闭</string>
+    <string name="tak_status_privacy">隐私模式 — 数据源已暂停</string>
+    <string name="tak_status_send_failed">发送失败</string>
+    <string name="tak_status_host_unresolved">无法解析主机 %1$s</string>
+    <string name="tak_status_no_eligible">0 个符合条件的设备（需要「额外关注」/ 载荷经纬度 / GPS 标记）</string>
+    <string name="tak_gnss_callout">可能的 GNSS 干扰</string>
+    <string name="tak_gnss_where">此手机当时所在的位置。不是信号来源。</string>
+    <string name="tak_gnss_remarks">%1$s\n此手机当时所在的位置。不是信号来源。</string>
+    <string name="tak_callsign_here">（此处）</string>
+    <string name="tak_callsign_gone">Fieldwatch · 已消失</string>
+    <string name="tak_heartbeat">Fieldwatch TAK 心跳（此手机）</string>
+    <string name="tak_advertised_position">广播位置</string>
+    <string name="tak_heard_here">在此听到（操作员 GPS）</string>
+</resources>

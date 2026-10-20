@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="debrief_disclaimer">免责声明</string>
+    <string name="debrief_privacy">隐私</string>
+    <string name="debrief_aircraft">飞行器</string>
+    <string name="debrief_environment">环境</string>
+    <string name="debrief_persistence">持续性</string>
+    <string name="debrief_anomalies">异常</string>
+    <string name="debrief_flood">泛洪</string>
+    <string name="debrief_gnss">GNSS</string>
+    <string name="debrief_generated">生成时间</string>
+    <string name="debrief_sit">Sit</string>
+    <string name="debrief_window">时间窗口</string>
+    <string name="debrief_radios">设备</string>
+    <string name="debrief_tool">工具</string>
+    <string name="debrief_scan">扫描</string>
+    <string name="debrief_distance">距离</string>
+    <string name="debrief_places">地点</string>
+    <string name="debrief_classification">分类</string>
+    <string name="debrief_unknown">未知</string>
+    <string name="debrief_off">关闭</string>
+    <string name="debrief_on">开启</string>
+    <string name="debrief_sit_kicker">SIT</string>
+    <string name="sd_windows">时间窗口</string>
+    <string name="sd_caps">上限</string>
+    <string name="sd_both">两者</string>
+    <string name="path_second_sit">第二个 sit。</string>
+    <string name="path_signal_changed">信号发生变化。</string>
+</resources>

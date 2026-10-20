@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gnss_diag_monitor">GNSS 监视器</string>
+    <string name="gnss_diag_hardware">GNSS 硬件</string>
+    <string name="gnss_diag_hardware_year">GNSS 硬件年份</string>
+    <string name="gnss_diag_raw_measurements">原始测量</string>
+    <string name="gnss_diag_agc_source">AGC 来源</string>
+    <string name="gnss_diag_network_time">网络时间</string>
+    <string name="gnss_diag_last_alert">上次 GNSS 警报</string>
+    <string name="gnss_diag_off">关闭</string>
+    <string name="gnss_diag_none">无</string>
+    <string name="gnss_diag_starting">正在启动</string>
+    <string name="gnss_diag_unknown">未知</string>
+    <string name="gnss_diag_unknown_api">未知（API %1$d）</string>
+    <string name="gnss_diag_supported">支持</string>
+    <string name="gnss_diag_not_supported">不支持</string>
+    <string name="gnss_diag_available">可用</string>
+    <string name="gnss_diag_unavailable">不可用</string>
+    <string name="gnss_diag_checking">检查中</string>
+    <string name="gnss_diag_blocked_no_raw">没有原始测量</string>
+    <string name="gnss_diag_blocked_raw_unsupported">不支持原始测量</string>
+    <string name="gnss_diag_blocked_gps_off">GPS 提供程序已关闭</string>
+    <string name="gnss_diag_blocked_no_permission">没有位置权限</string>
+    <string name="gnss_diag_agc_both">事件级和逐测量</string>
+    <string name="gnss_diag_agc_event">事件级</string>
+    <string name="gnss_diag_agc_measurement">逐测量</string>
+    <string name="gnss_diag_last_alert_format">%1$s，%2$s</string>
+    <string name="gnss_diag_cal_stopped">校准已停止。上次结果保持不变。</string>
+    <string name="gnss_diag_cal_no_permission">缺少位置权限。请授予权限后重试。</string>
+    <string name="gnss_diag_cal_location_off">请打开定位，站在室外，然后重试。</string>
+</resources>

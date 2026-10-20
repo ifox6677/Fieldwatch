@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_notif_starting">Starting radios…</string>
+    <string name="scan_notif_body">%1$d Wi-Fi · %2$d BLE · %3$d signatures</string>
+    <string name="scan_notif_title">Fieldwatch scanning</string>
+    <string name="scan_notif_stop">Stop</string>
+    <string name="scan_channel_name">Scanning</string>
+    <string name="scan_channel_desc">Passive Wi-Fi and Bluetooth scan status</string>
+</resources>

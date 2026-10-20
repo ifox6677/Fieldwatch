@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_import_summary">已恢复设置、当前筛选和 %1$d %2$s。%3$d %4$s，%5$d %6$s。</string>
+    <string name="settings_import_preset_one">个预设</string>
+    <string name="settings_import_preset_many">个预设</string>
+    <string name="settings_import_radio_one">个命名设备</string>
+    <string name="settings_import_radio_many">个命名设备</string>
+    <string name="settings_import_watch_one">个签名关注</string>
+    <string name="settings_import_watch_many">个签名关注</string>
+    <string name="settings_import_empty">此文件为空。</string>
+    <string name="settings_import_not_pack">不是 Fieldwatch 设置包。请从「设置 → 导出设置」导出。</string>
+    <string name="settings_import_is_signature">这是签名包。请使用「导入签名」。</string>
+    <string name="settings_import_not_pack_json">不是 Fieldwatch 设置包（请打开 fieldwatch-settings JSON 文件）。</string>
+    <string name="settings_import_blank">（空）</string>
+    <string name="settings_tak_warning_on_and_dest">此文件会开启 TAK / CoT 数据源，并将目标设为 %1$s。数据源使用明文 UDP。</string>
+    <string name="settings_tak_warning_on">此文件会开启 TAK / CoT 数据源。它会向 %1$s 发送明文 UDP。</string>
+    <string name="settings_tak_warning_dest_on">此文件会将 TAK / CoT 目标改为 %1$s。数据源使用明文 UDP 并保持开启。</string>
+    <string name="settings_tak_warning_dest_off">此文件会将 TAK / CoT 目标改为 %1$s。数据源会保持关闭，直到你开启它。</string>
+
+    <string name="sig_import_nothing">没有可导入的内容。</string>
+    <string name="sig_import_nothing_new">没有新内容。此手机上已有 %1$d 个。</string>
+    <string name="sig_import_added">已添加 %1$d 个</string>
+    <string name="sig_import_added_renamed">已添加 %1$d 个（%2$d 个已重命名）</string>
+    <string name="sig_import_merged">已合并 %1$d 个的额外规则</string>
+    <string name="sig_import_skipped">跳过 %1$d 个已存在的</string>
+    <string name="sig_import_join"> · </string>
+    <string name="sig_import_empty">此文件为空。</string>
+    <string name="sig_import_not_pack">不是 Fieldwatch 签名包。请从「设置 → 导出签名」导出。</string>
+    <string name="sig_import_not_pack_json">不是 Fieldwatch 签名包（请打开 fieldwatch-signatures JSON 文件；spectre-signatures 仍可导入）。</string>
+    <string name="sig_import_none">此包没有签名。</string>
+    <string name="sig_import_none_stock">此包没有内置签名。</string>
+    <string name="sig_import_default_name">导入的签名</string>
+    <string name="sig_import_suffix">%1$s（已导入）</string>
+    <string name="sig_import_suffix_n">%1$s（已导入 %2$d）</string>
+    <string name="preset_signatures_only">仅签名</string>
+    <string name="catalog_import_no_version">此包没有目录版本。</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_notif_starting">正在启动无线电…</string>
+    <string name="scan_notif_body">%1$d 个 Wi-Fi · %2$d 个 BLE · %3$d 个签名</string>
+    <string name="scan_notif_title">Fieldwatch 正在扫描</string>
+    <string name="scan_notif_stop">停止</string>
+    <string name="scan_channel_name">扫描</string>
+    <string name="scan_channel_desc">被动 Wi-Fi 和蓝牙扫描状态</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="place_failed_silently">在线查询静默失败。仅显示坐标。</string>
+    <string name="place_skipped_offline">已跳过在线查询：没有可用网络。仅显示坐标。</string>
+    <string name="place_skipped_no_geocoder">已跳过在线查询：此手机没有系统地理编码器（需要 Google Play / 网络定位）。仅显示坐标。</string>
+    <string name="place_no_gps">在线查询已开启，但此 sit 没有可命名的 GPS 标记。</string>
+    <string name="place_progress">正在查询地点名称（%1$d / %2$d）…</string>
+    <string name="place_line_no_name">  · %1$s  %2$s  （未返回名称）</string>
+    <string name="place_line_name">  · %1$s  %2$s  （%3$s）</string>
+    <string name="place_online_named">在线查询：系统地理编码器命名了 %1$d 个不同的 GPS 单元。街道名称来自手机的网络地理编码器，不是 Fieldwatch 云端。仅为近似位置。</string>
+    <string name="place_online_none">在线查询已运行，但系统地理编码器没有返回街道名称。仅显示坐标。</string>
+    <string name="place_stay">停留 %1$d</string>
+    <string name="place_transit_from">移动起点</string>
+    <string name="place_transit_to">移动终点</string>
+    <string name="place_path_start">路径起点</string>
+    <string name="place_path_end">路径终点</string>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cand_source_rotating">轮换日志</string>
+    <string name="cand_vendor_ie">厂商 IE %1$s</string>
+    <string name="cand_oui">OUI %1$s</string>
+    <string name="cand_uuid">UUID %1$s</string>
+    <string name="cand_svc_contains">服务包含 %1$s</string>
+    <string name="cand_uuid_prefix">UUID %1$s %2$s</string>
+    <string name="cand_mfg">厂商 0x%1$04X %2$s</string>
+    <string name="cand_mfg_only">厂商 0x%1$04X</string>
+    <string name="cand_catalog_signature">目录签名</string>
+    <string name="cand_already_tagged">已标记</string>
+    <string name="cand_already_body">匹配了 %1$s。第二个签名仍可为此设备双重标记（商店 UUID、产品 OUI）。</string>
+    <string name="cand_this_radio_only">仅此设备</string>
+    <string name="cand_no_unique">没有可聚类的唯一空口 ID。随机地址、类似家庭网络的名称和通用芯片会被跳过。</string>
+    <string name="cand_no_other">日志中或空口上没有其他 MAC 共享此 %1$s。从此创建的签名主要只会标记此地址。</string>
+    <string name="cand_strong_family">强家族</string>
+    <string name="cand_possible_family">可能家族</string>
+    <string name="cand_same">%2$s 上有相同的%1$s。这是目录模式，不是此 MAC。</string>
+    <string name="cand_same_thin">%2$s 上有相同的%1$s。样本较少 — 可能是目录家族。</string>
+    <string name="cand_glob_why">在 %1$d 个 %2$s 上出现相同名称通配 — 不是家庭 SSID。</string>
+    <string name="cand_vendor_name">厂商 IE %1$s</string>
+    <string name="cand_vendor_why">在 %1$d 个 BSSID 上出现相同厂商 IE。不是 WPS / P2P。</string>
+    <string name="cand_uuid_name">UUID %1$s</string>
+    <string name="cand_uuid_why">在 %1$d 个 BLE 广播设备上出现相同服务 UUID。</string>
+    <string name="cand_company_name">公司 0x%1$04X</string>
+    <string name="cand_mfg_why">在 %1$d 个 BLE 广播设备上出现相同厂商数据前缀。</string>
+    <string name="cand_oui_why">在 %1$d 个稳定 BSSID 上出现相同 IEEE OUI。不是芯片模块前缀。</string>
+    <string name="cand_kind_glob">名称通配</string>
+    <string name="cand_kind_vendor">厂商 IE</string>
+    <string name="cand_kind_uuid">服务 UUID</string>
+    <string name="cand_kind_mfg">厂商数据前缀</string>
+    <string name="cand_kind_oui">IEEE OUI</string>
+    <string name="cand_kind_on_air">空口 ID</string>
+    <string name="cand_count_both">日志中 %1$d 个%2$s（当前空口 %3$d 个）</string>
+    <string name="cand_count_log">日志中 %1$d 个%2$s</string>
+    <string name="cand_count_live">当前空口 %1$d 个%2$s</string>
+    <string name="cand_count_one">1 个%1$s</string>
+    <string name="cand_word_ap">AP</string>
+    <string name="cand_word_aps">AP</string>
+    <string name="cand_word_advertiser">广播设备</string>
+    <string name="cand_word_advertisers">广播设备</string>
+    <string name="cand_notes">日志中有 %1$d 个%2$s匹配了 %3$s。共享空口 ID，不是单设备 MAC。修改名称或分类，然后保存。</string>
+</resources>

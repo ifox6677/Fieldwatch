@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hunt_cue_very_close">Very Close</string>
+    <string name="hunt_cue_closer">Closer</string>
+    <string name="hunt_cue_further">Further</string>
+    <string name="hunt_cue_same">About the same</string>
+    <string name="hunt_cue_waiting">Listening…</string>
+    <string name="hunt_cue_quiet">Quiet</string>
+    <string name="hunt_cue_gone">Gone</string>
+    <string name="hunt_hint_very_close">Screaming loud here. Look around — usually in-hand, pocket, or the same bag. Not meters.</string>
+    <string name="hunt_hint_closer">Louder than a few seconds ago. Keep walking that way.</string>
+    <string name="hunt_hint_further">Quieter than a few seconds ago. Turn or back up.</string>
+    <string name="hunt_hint_same">No clear change yet. Slow down; hold the phone still.</string>
+    <string name="hunt_hint_waiting">Need a few seconds of packets to compare.</string>
+    <string name="hunt_hint_quiet">No packet for a few seconds. Silent, or behind a wall.</string>
+    <string name="hunt_hint_gone">Left the live set. Randomized BLE often vanishes mid-hunt.</string>
+</resources>

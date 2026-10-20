@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hunt_cue_very_close">非常近</string>
+    <string name="hunt_cue_closer">更近了</string>
+    <string name="hunt_cue_further">更远了</string>
+    <string name="hunt_cue_same">差不多</string>
+    <string name="hunt_cue_waiting">正在监听…</string>
+    <string name="hunt_cue_quiet">安静</string>
+    <string name="hunt_cue_gone">已消失</string>
+    <string name="hunt_hint_very_close">这里信号非常强。看看周围——通常就在手上、口袋里或同一个包里。不是按米计算。</string>
+    <string name="hunt_hint_closer">比几秒前更响。继续朝那个方向走。</string>
+    <string name="hunt_hint_further">比几秒前更轻。转身或后退。</string>
+    <string name="hunt_hint_same">暂时没有明显变化。放慢速度，拿稳手机。</string>
+    <string name="hunt_hint_waiting">需要几秒钟的数据包才能比较。</string>
+    <string name="hunt_hint_quiet">几秒钟没有数据包。可能静默，也可能在墙后。</string>
+    <string name="hunt_hint_gone">已离开实时列表。随机 BLE 地址经常在追踪途中消失。</string>
+</resources>

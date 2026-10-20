@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flood_title_wifi">Wi-Fi beacon flood</string>
+    <string name="flood_title_pairing">Pairing flood</string>
+    <string name="flood_title_name">Name flood</string>
+    <string name="flood_unit_names">new names</string>
+    <string name="flood_unit_addresses">new addresses</string>
+    <string name="flood_report_fam">: %1$s</string>
+    <string name="flood_report_extra"> · %1$d named</string>
+    <string name="flood_report_loud"> · about %1$d dBm</string>
+    <string name="flood_report_aside_one"> 1 address from this burst is left out of the counts and lists below.</string>
+    <string name="flood_report_aside_many"> %1$d addresses from this burst are left out of the counts and lists below.</string>
+    <string name="flood_report_line">%1$s UTC. %2$s. %3$d %4$s%5$s%6$s%7$s.%8$s</string>
+    <string name="flood_line_wifi">%1$s · %2$d new names%3$s</string>
+    <string name="flood_line_addresses">%1$s · %2$d new addresses%3$s%4$s</string>
+    <string name="flood_choice_sit">Continue leaves them on Live for the rest of this sit. Hide these takes this burst, and later bursts in this sit, off Live. The sit and the log still keep them.</string>
+    <string name="flood_choice_15">Continue leaves them on Live for about the next 15 minutes. Hide these takes this burst, and later bursts in that time, off Live. The sit and the log still keep them.</string>
+    <string name="flood_wifi_loud">, about the same loudness, about %1$d dBm,</string>
+    <string name="flood_body_wifi">%1$d new Wi-Fi names showed up in one scan%2$s and they were gone on the next scan. A repeated name, a mesh, an extender, or a guest network is not counted.\n\nA handheld such as a Flipper Zero, or an ESP32 running Marauder or Bruce, does this by advertising many network names. The advertisement does not name the tool.\n\n%3$s</string>
+    <string name="flood_body_pairing">%1$d new addresses sent pairing advertisements in the last few seconds%2$s.%3$s%4$s\n\nThis can be many radios already advertising pairing, such as in a store, or one radio changing its address on every packet. A Flipper Zero, or an ESP32 running Marauder or Bruce, can do the second. The advertisement does not name the tool.\n\n%5$s</string>
+    <string name="flood_body_name">%1$d new addresses each advertised a Bluetooth name in the last few seconds.%2$s\n\nThis can be many radios already advertising a name, such as tags in a store, or one radio changing its name and address on every packet. A Flipper Zero, or an ESP32 running Marauder or Bruce, can do the second. The advertisement does not name the tool.\n\n%3$s</string>
+    <string name="flood_more_named"> %1$d more each advertised a Bluetooth name.</string>
+    <string name="flood_loud_sentence"> They are about the same loudness, about %1$d dBm.</string>
+    <string name="flood_intro_ble">A burst of new Bluetooth addresses in a few seconds. A handheld can do this by advertising a pairing request or a new name and changing the address every packet. A name flood counts randomized addresses. A factory address with a stable name stays out of that count. The advertisement does not name the tool.</string>
+    <string name="flood_intro_wifi">A burst of new Wi-Fi names in one scan, about the same loudness, gone by the next scan. A repeated name, a mesh, an extender, or a guest network is not counted. The advertisement does not name the tool.</string>
+    <string name="flood_family_apple_proximity">Apple proximity pairing</string>
+    <string name="flood_family_apple_nearby">Apple Nearby Action</string>
+    <string name="flood_family_fast_pair">Fast Pair</string>
+    <string name="flood_family_swift_pair">Swift Pair</string>
+    <string name="flood_family_samsung">Samsung Easy Setup</string>
+    <string name="flood_family_lovespouse">LoveSpouse</string>
+</resources>

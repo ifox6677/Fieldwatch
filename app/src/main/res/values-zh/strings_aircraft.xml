@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="aircraft_advertised_position">广播位置</string>
+    <string name="aircraft_last">最后 %1$s</string>
+    <string name="aircraft_course">航向 %1$s°</string>
+    <string name="aircraft_one_fix">1 个广播定位</string>
+    <string name="aircraft_fixes">%1$d 个广播定位，%2$s</string>
+    <string name="aircraft_hidden">另有 %1$d 条飞行器轨迹列在此处，未显示在地图上。</string>
+    <string name="aircraft_broadcast_note">这些位置由无线电广播。它们不是此手机的 GPS。</string>
+    <string name="aircraft_status_changed">状态已变化：%1$s → %2$s</string>
+    <string name="aircraft_no_uas">%1$s，无 UAS ID：%2$s（%3$s）</string>
+    <string name="aircraft_kicker">飞行器</string>
+    <string name="aircraft_second_track"> 蓝色虚线是第二个 sit 在此路径 2 公里内的广播轨迹。</string>
+    <string name="aircraft_black_track"> 黑色虚线是此路径 2 公里内的广播轨迹。</string>
+    <string name="aircraft_compare_both">北向上。黑点是此 sit，蓝点是第二个 sit。标记是最后的广播位置。</string>
+    <string name="aircraft_compare_blue">北向上。蓝色虚线是 %1$s 的广播轨迹。标记是最后的广播位置。</string>
+    <string name="aircraft_title">飞行器</string>
+    <string name="aircraft_last_for">%1$s 的最后广播位置。标记就是该位置。</string>
+    <string name="aircraft_north_track">北向上。黑色虚线是 %1$s 的广播轨迹。标记是最后的广播位置。</string>
+    <string name="aircraft_uas">UAS %1$s</string>
+    <string name="aircraft_last_coord">最后 %1$s</string>
+    <string name="aircraft_one_fix_short">1 个定位</string>
+    <string name="aircraft_fixes_short">%1$d 个定位</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tak_status_off">Off</string>
+    <string name="tak_status_privacy">Privacy mode — feed paused</string>
+    <string name="tak_status_send_failed">send failed</string>
+    <string name="tak_status_host_unresolved">Host %1$s did not resolve</string>
+    <string name="tak_status_no_eligible">0 eligible radios (need Extra attention / payload latlon / GPS stamp)</string>
+    <string name="tak_gnss_callout">Possible GNSS interference</string>
+    <string name="tak_gnss_where">Where this phone was. Not the source.</string>
+    <string name="tak_gnss_remarks">%1$s\nWhere this phone was. Not the source.</string>
+    <string name="tak_callsign_here"> (here)</string>
+    <string name="tak_callsign_gone">Fieldwatch · gone</string>
+    <string name="tak_heartbeat">Fieldwatch TAK heartbeat (this phone)</string>
+    <string name="tak_advertised_position">advertised position</string>
+    <string name="tak_heard_here">heard here (operator GPS)</string>
+</resources>

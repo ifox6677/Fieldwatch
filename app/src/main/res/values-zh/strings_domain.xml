@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 设备列表 -->
+    <string name="hidden_ssid">&lt;隐藏&gt;</string>
+    <string name="status_crumb_rand">随机</string>
+    <string name="status_crumb_pair">配对</string>
+    <string name="status_crumb_gone">消失</string>
+    <string name="spoken_radio">设备</string>
+    <string name="spoken_unmatched">未匹配</string>
+</resources>

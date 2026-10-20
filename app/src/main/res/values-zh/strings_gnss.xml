@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GNSS 弹窗与状态 -->
+    <string name="gnss_msg_intro">Fieldwatch 会观察此手机的 GPS 接收器并留意变化。如果检查开始时异常已经存在，可能会被漏掉。</string>
+    <string name="gnss_msg_router">手机旁边的 Wi-Fi 路由器或其他电子设备也可能造成这种现象。Fieldwatch 无法判断来源或距离。</string>
+    <string name="gnss_msg_spoof_limit">欺骗检测并不完整。谨慎的欺骗者可以绕过这些检查。定位错误也可能是干扰的副作用。</string>
+    <string name="gnss_msg_mock">有模拟位置应用正在运行。那是开发者用的模拟位置开关，不是无线电欺骗器。</string>
+    <string name="gnss_msg_paused">GNSS 已被手机暂停</string>
+    <string name="gnss_msg_adapted_body">接收器可能已经适应。异常可能仍然存在。</string>
+    <string name="gnss_msg_popup_adapted">接收器可能已经调整。异常可能仍然存在。</string>
+    <string name="gnss_msg_title">%1$s（%2$s）</string>
+    <string name="gnss_msg_banner">%1$s · %2$s</string>
+    <string name="gnss_msg_ended">%1$s 结束于 %2$s</string>
+    <string name="gnss_msg_report_line">%1$s UTC。%2$s。%3$s。%4$s。%5$s</string>
+    <string name="gnss_msg_ended_suffix"> 结束于 %1$s UTC。</string>
+    <string name="gnss_msg_report_spoofing">可能的 GNSS 欺骗</string>
+    <string name="gnss_msg_report_mock">模拟位置应用</string>
+    <string name="gnss_msg_report_interference">可能的 GNSS 干扰</string>
+    <string name="gnss_msg_head_mock">模拟位置应用</string>
+    <string name="gnss_msg_head_both">可能的 GNSS 干扰和欺骗</string>
+    <string name="gnss_msg_head_spoofing">可能的 GNSS 欺骗</string>
+    <string name="gnss_msg_head_interference">可能的 GNSS 干扰</string>
+    <string name="gnss_msg_why_gain_lost">接收器降低了增益并丢失了卫星。</string>
+    <string name="gnss_msg_why_two_systems">此手机的 GPS 在不止一个卫星系统上变弱。接收器降低了增益，信号随之下降。</string>
+    <string name="gnss_msg_why_both_dropped">此手机的 GPS 变弱。接收器降低了增益，卫星信号随之下降。</string>
+    <string name="gnss_msg_why_signal_only">卫星信号变弱。此手机没有报告接收器增益，因此这个提示的依据较弱。</string>
+    <string name="gnss_msg_why_gain_only">接收器降低增益的幅度超过平常。卫星信号没有下降那么多。</string>
+    <string name="gnss_msg_why_spoof_gain">接收器降低了增益，但卫星信号没有下降。</string>
+    <string name="gnss_msg_why_spoof_clock">GPS 时间与网络时间不一致。</string>
+    <string name="gnss_msg_why_spoof_position">GPS 位置与网络位置不一致。</string>
+    <string name="gnss_msg_why_spoof_jumped">GPS 位置跳变的速度超过了此手机可能移动的速度。</string>
+    <string name="gnss_msg_why_spoof_faded">多颗卫星信号同时变弱。手、屋顶或口袋也可能造成这种现象。</string>
+    <string name="gnss_msg_why_spoof_faded_gain">多颗卫星信号也一起变弱了。</string>
+    <string name="gnss_msg_why_spoof_interference">此手机受到的干扰也可能造成这种现象。</string>
+    <string name="gnss_msg_note_both">路由器、充电器或贴着此手机的另一部手机也可能造成同样现象。定位错误也可能由此产生。Fieldwatch 无法判断来源或距离。</string>
+    <string name="gnss_msg_note_spoof">这只是一个提示。谨慎的假 GPS 信号可以绕过这些检查。Fieldwatch 无法判断来源或距离。</string>
+    <string name="gnss_msg_note_interference">路由器、充电器或贴着此手机的另一部手机也可能造成同样现象。Fieldwatch 无法判断来源或距离。</string>
+    <string name="gnss_msg_phrase_mock">模拟位置应用已开启</string>
+    <string name="gnss_msg_phrase_spoof">可能的 G P S 欺骗。位置可能错误。</string>
+    <string name="gnss_msg_phrase_interference">可能的 G P S 干扰</string>
+    <string name="gnss_msg_settling">稳定中 %1$d 秒</string>
+    <string name="gnss_msg_signal_changed">信号发生变化。</string>
+    <string name="gnss_msg_learning">学习中 %1$d/%2$d 秒</string>
+    <string name="gnss_msg_alert">警报：%1$s（%2$s）</string>
+    <string name="gnss_msg_kind_spoofing">欺骗</string>
+    <string name="gnss_msg_kind_mock">模拟位置</string>
+    <string name="gnss_msg_kind_interference">干扰</string>
+    <string name="gnss_msg_no_agc">此手机不支持 AGC。仅依据信号强度，置信度低。</string>
+    <string name="gnss_msg_armed">已就绪</string>
+    <string name="gnss_msg_note_gain">增益下降，但信号没有下降。</string>
+    <string name="gnss_msg_note_clock">GPS 时间与网络时间不一致。</string>
+    <string name="gnss_msg_note_position">GPS 位置与网络位置不一致。</string>
+    <string name="gnss_msg_note_jumped">GPS 位置跳变的速度超过了移动速度。</string>
+    <string name="gnss_msg_note_fading">卫星信号正在一起变弱。</string>
+    <string name="gnss_msg_note_side_effect">这可能是干扰的副作用。</string>
+    <string name="gnss_msg_band_line">%1$s：AGC %2$s，信号 %3$s，%4$d 颗卫星</string>
+    <string name="gnss_msg_band_text">%1$s：AGC %2$s，信号 %3$s，%4$d 颗卫星（基线 %5$s）</string>
+    <string name="gnss_msg_na">无数据</string>
+    <string name="gnss_msg_band">频段</string>
+
+    <!-- GNSS 校准 -->
+    <string name="gnss_cal_complete_good">校准完成。此手机为良好。在稳定的天空视野下、远离其他电子设备时应可正常工作。</string>
+    <string name="gnss_cal_complete_fair">校准完成。此手机为一般。可用。小幅下降很难与此手机自身的 GPS 波动区分。中或低档会比高档更稳定。</string>
+    <string name="gnss_cal_complete_poor">校准完成。此手机为较差。此手机的 GPS 精度太低，无法用于干扰警报。它仍可标记路径。弹窗将保持关闭。</string>
+    <string name="gnss_cal_diag">GNSS 校准</string>
+    <string name="gnss_cal_not_run">未运行</string>
+    <string name="gnss_cal_calibrated">校准时间</string>
+    <string name="gnss_cal_signal_at">校准时的 GPS 信号</string>
+    <string name="gnss_cal_signal_value">%1$s dB-Hz，漂移 %2$s dB</string>
+    <string name="gnss_cal_gain_wander">增益漂移</string>
+    <string name="gnss_cal_not_reported">未报告</string>
+    <string name="gnss_cal_reject_not_enough">GPS 读数不足。请待在室外，保持不动，然后重试。</string>
+    <string name="gnss_cal_reject_no_fix">没有 GPS 定位。请站在室外，保持不动，然后重试。</string>
+    <string name="gnss_cal_reject_moving">手机在移动。请站定后重试。</string>
+    <string name="gnss_cal_reject_satellites">卫星太少。请站在开阔处，远离屋顶和路由器，然后重试。</string>
+    <string name="gnss_cal_reject_weak">GPS 信号太弱，无法校准。请站在开阔处后重试。</string>
+</resources>

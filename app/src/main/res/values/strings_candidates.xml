@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cand_source_rotating">Rotating log</string>
+    <string name="cand_vendor_ie">vendor IE %1$s</string>
+    <string name="cand_oui">OUI %1$s</string>
+    <string name="cand_uuid">UUID %1$s</string>
+    <string name="cand_svc_contains">svc contains %1$s</string>
+    <string name="cand_uuid_prefix">UUID %1$s %2$s</string>
+    <string name="cand_mfg">mfg 0x%1$04X %2$s</string>
+    <string name="cand_mfg_only">mfg 0x%1$04X</string>
+    <string name="cand_catalog_signature">a catalog signature</string>
+    <string name="cand_already_tagged">Already tagged</string>
+    <string name="cand_already_body">Matched %1$s. A second signature can still dual-label this radio (store UUID, product OUI).</string>
+    <string name="cand_this_radio_only">This radio only</string>
+    <string name="cand_no_unique">No unique on-air ID to cluster on. Randomized addresses, house-like names, and generic chips are skipped.</string>
+    <string name="cand_no_other">No other MAC in the log or on the air shares this %1$s. A signature from here will mostly tag this address.</string>
+    <string name="cand_strong_family">Strong family</string>
+    <string name="cand_possible_family">Possible family</string>
+    <string name="cand_same">Same %1$s on %2$s. That is a catalog pattern, not this MAC.</string>
+    <string name="cand_same_thin">Same %1$s on %2$s. Thin sample — a possible catalog family.</string>
+    <string name="cand_glob_why">Same name glob on %1$d %2$s — not a house SSID.</string>
+    <string name="cand_vendor_name">Vendor IE %1$s</string>
+    <string name="cand_vendor_why">Same vendor IE on %1$d BSSIDs. Not WPS / P2P.</string>
+    <string name="cand_uuid_name">UUID %1$s</string>
+    <string name="cand_uuid_why">Same service UUID on %1$d BLE advertisers.</string>
+    <string name="cand_company_name">Company 0x%1$04X</string>
+    <string name="cand_mfg_why">Same manufacturer data prefix on %1$d BLE advertisers.</string>
+    <string name="cand_oui_why">Same IEEE OUI on %1$d stable BSSIDs. Not a chip-module prefix.</string>
+    <string name="cand_kind_glob">name glob</string>
+    <string name="cand_kind_vendor">vendor IE</string>
+    <string name="cand_kind_uuid">service UUID</string>
+    <string name="cand_kind_mfg">manufacturer data prefix</string>
+    <string name="cand_kind_oui">IEEE OUI</string>
+    <string name="cand_kind_on_air">on-air ID</string>
+    <string name="cand_count_both">%1$d %2$s in the log (%3$d on the air now)</string>
+    <string name="cand_count_log">%1$d %2$s in the log</string>
+    <string name="cand_count_live">%1$d %2$s on the air now</string>
+    <string name="cand_count_one">1 %1$s</string>
+    <string name="cand_word_ap">AP</string>
+    <string name="cand_word_aps">APs</string>
+    <string name="cand_word_advertiser">advertiser</string>
+    <string name="cand_word_advertisers">advertisers</string>
+    <string name="cand_notes">%1$d %2$s in the log matched %3$s. Shared on-air ID, not a one-radio MAC. Change the name or class, then Save.</string>
+</resources>

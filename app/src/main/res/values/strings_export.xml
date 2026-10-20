@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_kind_csv">Log file — CSV</string>
+    <string name="export_kind_jsonl">Log file — JSON lines</string>
+    <string name="export_kind_gpx">GPX — GPS Exchange</string>
+    <string name="export_kind_kml">KML — Google Earth</string>
+    <string name="export_kind_wigle">WiGLE CSV — wigle.net</string>
+    <string name="export_radios_both">Both radios</string>
+    <string name="export_radios_wifi">Wi-Fi only</string>
+    <string name="export_radios_ble">BLE only</string>
+    <string name="export_observer">Observer: %1$s</string>
+    <string name="export_heard_here">Heard at this phone. Not a radio fix.</string>
+    <string name="sit_export_subject">Fieldwatch sit %1$s (%2$s)</string>
+    <string name="sit_export_tag_csv">CSV</string>
+    <string name="sit_export_tag_jsonl">JSON lines</string>
+    <string name="sit_export_tag_gpx">GPX</string>
+    <string name="sit_export_tag_kml">KML</string>
+    <string name="sit_export_tag_wigle">WiGLE CSV</string>
+    <string name="sit_export_radios_all">radios</string>
+    <string name="sit_export_radios_wifi">Wi-Fi radios</string>
+    <string name="sit_export_radios_ble">BLE radios</string>
+    <string name="sit_export_no_radios">No %1$s in this sit.</string>
+    <string name="sit_export_no_gps_radios">No GPS-tagged %1$s in this sit. Settings → Tag detections with GPS.</string>
+    <string name="export_operator_path">Operator path</string>
+    <string name="export_kml_title">Fieldwatch %1$s export</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ble_error_scan_failed">BLE scan failed (%1$d)</string>
+    <string name="ble_error_off">Bluetooth is off</string>
+    <string name="ble_error_scanner_unavailable">BLE scanner unavailable</string>
+    <string name="ble_error_start_failed">BLE start failed</string>
+    <string name="ble_hint_retrying">BLE retrying</string>
+    <string name="ble_hint_off">Bluetooth is off</string>
+    <string name="ble_hint_unavailable">BLE unavailable</string>
+    <string name="ble_hint_cycling">BLE cycling</string>
+    <string name="ble_hint_parked">BLE parked · restarting</string>
+</resources>

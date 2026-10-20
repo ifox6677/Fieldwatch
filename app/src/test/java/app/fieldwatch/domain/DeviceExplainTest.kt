@@ -1,0 +1,104 @@
+package app.fieldwatch.domain
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+
+class DeviceExplainTest {
+    @Test
+    fun ravenDirectSsidIsAcousticSensorNotPhoneOrTv() {
+        val device = wifi("00:0A:F5:86:56:DD", "DIRECT-rR-Raven-607")
+        val guess = DeviceExplain.guess(TestResources.res, device, listOf("Raven / ShotSpotter", "Unknown Signature"))
+        assertTrue(guess.headline, guess.headline.contains("Raven", ignoreCase = true))
+        assertTrue(guess.headline, guess.headline.contains("ShotSpotter", ignoreCase = true))
+        assertFalse(guess.headline, guess.headline.contains("phone or TV", ignoreCase = true))
+        assertTrue(guess.because, guess.because.contains("Raven / ShotSpotter"))
+        assertTrue(guess.because, guess.because.contains("DIRECT-"))
+    }
+
+    @Test
+    fun genericDirectSsidWithoutProductFamilyStillLooksLikeWifiDirect() {
+        val device = wifi("02:11:22:33:44:55", "DIRECT-xy-LivingRoom")
+        val guess = DeviceExplain.guess(TestResources.res, device, emptyList())
+        assertTrue(guess.headline, guess.headline.contains("Wi-Fi Direct", ignoreCase = true))
+    }
+
+    @Test
+    fun localBitWithGroupBitIsNotAFactoryAddress() {
+        val device = wifi("5B:AF:C8:11:22:33", "").copy(
+            kind = RadioKind.BLE,
+            key = "BLE:5B:AF:C8:11:22:33",
+            randomized = false,
+            vendor = null,
+            facts = RadioFacts(addressType = "Public"),
+        )
+        val text = DeviceExplain.addressExplain(TestResources.res, device)
+        assertTrue(text, text.contains("local bit", ignoreCase = true))
+        assertFalse(text, text.contains("Public factory"))
+        assertEquals(
+            "Public factory address (stable, IEEE-assigned).",
+            DeviceExplain.addressExplain(TestResources.res,
+                device.copy(
+                    mac = "00:00:0C:11:22:33",
+                    key = "BLE:00:00:0C:11:22:33",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun wifiLocalBitBssidIsNotARotatingPrivacyMac() {
+        val ap = wifi("02:0A:F5:86:56:DD", "PS-CRADLEPOINT").copy(randomized = true)
+        val text = DeviceExplain.addressExplain(TestResources.res, ap)
+        assertTrue(text, text.contains("Locally administered BSSID"))
+        assertFalse(text, text.contains("privacy", ignoreCase = true))
+        assertFalse(text, text.contains("can change", ignoreCase = true))
+    }
+
+    @Test
+    fun rssi127IsNotAvailableNotVeryStrong() {
+        assertEquals("Not available", DeviceExplain.rssiExplain(TestResources.res, 127))
+        assertEquals("not available", DeviceExplain.rssiBand(TestResources.res, 127))
+        assertEquals(
+            "-103 to -86 dBm",
+            Rssi.sessionRange(-103, 127, listOf(RssiSample(1L, -86), RssiSample(2L, 127))),
+        )
+        assertEquals(-99, Rssi.lastMeasured(127, listOf(RssiSample(1L, -99), RssiSample(2L, 127))))
+    }
+
+    @Test
+    fun unknownSignatureNameIsNotAProductGuess() {
+        val device = wifi("02:11:22:33:44:56", "DIRECT-ab-TV")
+        val guess = DeviceExplain.guess(TestResources.res, device, listOf("Unknown Signature"))
+        assertFalse(guess.headline, guess.headline.contains("Unknown", ignoreCase = true))
+        assertTrue(guess.headline, guess.headline.contains("Wi-Fi Direct", ignoreCase = true))
+    }
+
+    private fun wifi(mac: String, name: String) = Sighting(
+        key = "WIFI:$mac",
+        kind = RadioKind.WIFI,
+        mac = mac,
+        name = name,
+        rssi = -86,
+        rssiMin = -86,
+        rssiMax = -76,
+        channel = 1,
+        frequencyMhz = 2412,
+        vendor = "Airgo Networks, Inc.",
+        randomized = false,
+        hiddenSsid = false,
+        serviceUuids = emptyList(),
+        manufacturerId = null,
+        manufacturerDataHex = "",
+        rawHex = "",
+        extras = "",
+        firstSeen = 1L,
+        lastSeen = 1L,
+        hitCount = 7,
+        fleetIds = emptySet(),
+        rssiHistory = emptyList(),
+        presence = emptyList(),
+    )
+}

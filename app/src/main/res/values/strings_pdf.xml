@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pdf_disclaimer">Disclaimer</string>
+    <string name="pdf_wifi">Wi-Fi</string>
+    <string name="pdf_ble">BLE</string>
+    <string name="pdf_start">Start</string>
+    <string name="pdf_end">End</string>
+    <string name="pdf_stay">Stay</string>
+    <string name="pdf_advertised">Advertised</string>
+    <string name="pdf_operator">Operator</string>
+    <string name="pdf_gnss">GNSS</string>
+    <string name="pdf_takeaway">TAKEAWAY</string>
+</resources>

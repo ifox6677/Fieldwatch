@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flood_title_wifi">Wi-Fi 信标洪流</string>
+    <string name="flood_title_pairing">配对洪流</string>
+    <string name="flood_title_name">名称洪流</string>
+    <string name="flood_unit_names">个新名称</string>
+    <string name="flood_unit_addresses">个新地址</string>
+    <string name="flood_report_fam">：%1$s</string>
+    <string name="flood_report_extra"> · 其中 %1$d 个有名称</string>
+    <string name="flood_report_loud"> · 约 %1$d dBm</string>
+    <string name="flood_report_aside_one"> 此突发中有 1 个地址未计入下方统计和列表。</string>
+    <string name="flood_report_aside_many"> 此突发中有 %1$d 个地址未计入下方统计和列表。</string>
+    <string name="flood_report_line">%1$s UTC。%2$s。%3$d %4$s%5$s%6$s%7$s。%8$s</string>
+    <string name="flood_line_wifi">%1$s · %2$d 个新名称%3$s</string>
+    <string name="flood_line_addresses">%1$s · %2$d 个新地址%3$s%4$s</string>
+    <string name="flood_choice_sit">「继续」会让它们保留在 Live 上，直到此 sit 结束。「隐藏这些」会把这次突发以及此 sit 中后续的突发从 Live 上移除。sit 和日志仍会保留它们。</string>
+    <string name="flood_choice_15">「继续」会让它们保留在 Live 上约 15 分钟。「隐藏这些」会把这次突发以及这段时间内后续的突发从 Live 上移除。sit 和日志仍会保留它们。</string>
+    <string name="flood_wifi_loud">，响度大致相同，约 %1$d dBm，</string>
+    <string name="flood_body_wifi">一次扫描中出现了 %1$d 个新 Wi-Fi 名称%2$s，下一次扫描时它们就消失了。重复的名称、mesh、扩展器或访客网络不计入。\n\nFlipper Zero 之类的手持设备，或运行 Marauder/Bruce 的 ESP32，会通过广播大量网络名称来做到这一点。广播本身不会指明工具。\n\n%3$s</string>
+    <string name="flood_body_pairing">过去几秒内有 %1$d 个新地址发送了配对广播%2$s。%3$s%4$s\n\n这可能是商店等场所中许多本来就在广播配对的设备，也可能是一台设备在每个数据包中更换地址。Flipper Zero 或运行 Marauder/Bruce 的 ESP32 可以做到后者。广播本身不会指明工具。\n\n%5$s</string>
+    <string name="flood_body_name">过去几秒内有 %1$d 个新地址各自广播了一个蓝牙名称。%2$s\n\n这可能是商店中的标签等许多本来就在广播名称的设备，也可能是一台设备在每个数据包中更换名称和地址。Flipper Zero 或运行 Marauder/Bruce 的 ESP32 可以做到后者。广播本身不会指明工具。\n\n%3$s</string>
+    <string name="flood_more_named"> 另有 %1$d 个也广播了蓝牙名称。</string>
+    <string name="flood_loud_sentence"> 它们的响度大致相同，约 %1$d dBm。</string>
+    <string name="flood_intro_ble">几秒内出现大量新蓝牙地址。手持设备可以通过广播配对请求或新名称，并在每个数据包中更换地址来做到这一点。名称洪流只统计随机地址。固定出厂地址且名称稳定的设备不计入。广播本身不会指明工具。</string>
+    <string name="flood_intro_wifi">一次扫描中出现大量新 Wi-Fi 名称，响度大致相同，下一次扫描时消失。重复的名称、mesh、扩展器或访客网络不计入。广播本身不会指明工具。</string>
+    <string name="flood_family_apple_proximity">苹果邻近配对</string>
+    <string name="flood_family_apple_nearby">苹果 Nearby Action</string>
+    <string name="flood_family_fast_pair">Fast Pair</string>
+    <string name="flood_family_swift_pair">Swift Pair</string>
+    <string name="flood_family_samsung">三星轻松设置</string>
+    <string name="flood_family_lovespouse">LoveSpouse</string>
+</resources>

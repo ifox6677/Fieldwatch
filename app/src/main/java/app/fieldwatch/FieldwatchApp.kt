@@ -1,0 +1,401 @@
+package app.fieldwatch
+
+import android.app.Application
+import android.content.Intent
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Looper
+import androidx.core.content.ContextCompat
+import app.fieldwatch.alert.Alerter
+import app.fieldwatch.radio.GnssMonitor
+import app.fieldwatch.data.ConfigStore
+import app.fieldwatch.data.DeviceStore
+import app.fieldwatch.data.GnssProfileStore
+import app.fieldwatch.data.LogStore
+import app.fieldwatch.data.SitStore
+import app.fieldwatch.domain.CoTravel
+import app.fieldwatch.domain.FilterEngine
+import app.fieldwatch.domain.Geo
+import app.fieldwatch.domain.GpsSample
+import app.fieldwatch.domain.FloodBurst
+import app.fieldwatch.domain.PairingFlood
+import app.fieldwatch.domain.WifiBeaconFlood
+import app.fieldwatch.domain.RadioBookmarks
+import app.fieldwatch.domain.RadioDb
+import app.fieldwatch.domain.RadioKind
+import app.fieldwatch.domain.Sighting
+import app.fieldwatch.radio.ScanService
+import app.fieldwatch.radio.TakPublisher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+class FieldwatchApp : Application() {
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    lateinit var config: ConfigStore
+        private set
+    lateinit var devices: DeviceStore
+        private set
+    lateinit var logs: LogStore
+        private set
+    lateinit var sits: SitStore
+        private set
+    lateinit var alerter: Alerter
+        private set
+    lateinit var tak: TakPublisher
+        private set
+    val pairingFlood = PairingFlood()
+    val wifiFlood = WifiBeaconFlood()
+    lateinit var gnss: GnssMonitor
+        private set
+    lateinit var gnssProfile: GnssProfileStore
+        private set
+
+    /** Bluetooth bursts, Wi-Fi bursts, or both in time order. */
+    fun floodBursts(): List<FloodBurst> {
+        val ble = pairingFlood.bursts()
+        val wifi = wifiFlood.bursts()
+        if (wifi.isEmpty()) return ble
+        if (ble.isEmpty()) return wifi
+        return (ble + wifi).sortedBy { it.at }
+    }
+
+    private val filters = FilterEngine()
+    private val _arrivals = MutableStateFlow(ArrivalsState())
+    val arrivals: StateFlow<ArrivalsState> = _arrivals.asStateFlow()
+    @Volatile
+    private var wifiLearnPending = false
+    @Volatile
+    private var persistArrivalsAt = 0L
+
+    @Volatile
+    var lastFix: Pair<Double, Double>? = null
+    @Volatile
+    var lastFixAt: Long = 0L
+    @Volatile
+    private var speedMps: Double? = null
+    @Volatile
+    private var speedAt: Long = 0L
+    private val pathLock = Any()
+    private val operatorPath = ArrayList<GpsSample>(64)
+    private var pathLengthM = 0.0
+    private var locating = false
+    private val gpsListener = LocationListener { loc -> onProviderFix(loc, gps = true) }
+    private val netListener = LocationListener { loc -> onProviderFix(loc, gps = false) }
+
+    override fun onCreate() {
+        super.onCreate()
+        AppText.install(resources)
+        config = ConfigStore(this)
+        RadioDb.init(this)
+        devices = DeviceStore()
+        logs = LogStore(this)
+        sits = SitStore(this, scope)
+        alerter = Alerter(this)
+        tak = TakPublisher()
+        gnssProfile = GnssProfileStore(this)
+        gnss = GnssMonitor(this)
+        runBlocking {
+            config.load()
+            if (gnssProfile.profile.value == null && config.settings.gnssMonitor) {
+                config.update { it.copy(settings = it.settings.copy(gnssMonitor = false)) }
+            }
+            logs.configure(
+                config.settings.logFormat,
+                config.settings.logRotateKb,
+                config.settings.loggingEnabled,
+            )
+            sits.load()
+            val sitOpen = sits.ui.value.open != null
+            pairingFlood.setSitOpen(sitOpen)
+            wifiFlood.setSitOpen(sitOpen)
+        }
+        sits.startFlusher()
+        syncLocationUpdates()
+        if (config.settings.alertVoice || config.settings.gnssVoice) alerter.prepareVoice()
+        if (config.filter.arrivalsOnly) {
+            beginArrivals(keepRemembered = true)
+        }
+    }
+
+    fun beginArrivals(keepRemembered: Boolean = false) {
+        val remembered = if (keepRemembered) config.config.value.arrivalKnownKeys else emptySet()
+        wifiLearnPending = true
+        _arrivals.value = ArrivalsState(
+            active = true,
+            knownKeys = remembered + devices.devices.value.map { it.key },
+            learningUntil = System.currentTimeMillis() + 90_000L,
+            bufferStartedAt = System.currentTimeMillis(),
+        )
+        persistArrivalKeys()
+    }
+
+    fun resetSeenBuffer() {
+        wifiLearnPending = false
+        alerter.forgetAnnounced()
+        _arrivals.value = ArrivalsState(
+            active = true,
+            knownKeys = emptySet(),
+            learningUntil = 0L,
+            bufferStartedAt = System.currentTimeMillis(),
+        )
+        persistArrivalKeys(emptySet())
+    }
+
+    fun clearArrivals() {
+        wifiLearnPending = false
+        _arrivals.value = ArrivalsState()
+        persistArrivalKeys(emptySet())
+    }
+
+    fun markArrivalsSeen(keys: Collection<String>? = null) {
+        val st = _arrivals.value
+        if (!st.active) return
+        rememberKeys(keys ?: devices.devices.value.map { it.key })
+        wifiLearnPending = false
+        _arrivals.value = _arrivals.value.copy(learningUntil = 0L)
+    }
+
+    fun onFreshWifiBatch() {
+        if (!_arrivals.value.active || !wifiLearnPending) return
+        val wifiKeys = devices.devices.value.filter { it.kind == RadioKind.WIFI }.map { it.key }
+        rememberKeys(wifiKeys)
+        wifiLearnPending = false
+        _arrivals.value = _arrivals.value.copy(learningUntil = 0L)
+    }
+
+    private fun rememberKeys(keys: Collection<String>) {
+        val st = _arrivals.value
+        if (!st.active || keys.isEmpty()) return
+        val merged = st.knownKeys + keys
+        if (merged.size == st.knownKeys.size) return
+        val trimmed = if (merged.size <= MAX_ARRIVAL_KEYS) {
+            merged
+        } else {
+            merged.toList().takeLast(MAX_ARRIVAL_KEYS).toSet()
+        }
+        _arrivals.value = st.copy(knownKeys = trimmed)
+        persistArrivalKeys(trimmed)
+    }
+
+    private fun persistArrivalKeys(keys: Set<String> = _arrivals.value.knownKeys) {
+        persistArrivalsAt = System.currentTimeMillis()
+        scope.launch {
+            config.update { it.copy(arrivalKnownKeys = keys) }
+        }
+    }
+
+    fun syncArrivals(on: Boolean) {
+        if (on) {
+            if (!_arrivals.value.active) beginArrivals(keepRemembered = false)
+        } else if (_arrivals.value.active) {
+            clearArrivals()
+        }
+    }
+
+    fun isHiddenByArrivals(device: Sighting): Boolean {
+        if (!config.filter.arrivalsOnly) return false
+        val st = _arrivals.value
+        if (!st.active) return false
+        val learning = System.currentTimeMillis() <= st.learningUntil
+        return device.key in st.knownKeys || (learning && device.kind == RadioKind.WIFI)
+    }
+
+    fun wouldShowOnLive(device: Sighting): Boolean {
+        if (device.gone) return false
+        val bleHidden = pairingFlood.hide.value.keys
+        val wifiHidden = wifiFlood.hide.value.keys
+        if ((bleHidden.isNotEmpty() && device.key in bleHidden) ||
+            (wifiHidden.isNotEmpty() && device.key in wifiHidden)
+        ) return false
+        val travel = if (config.filter.movingWithYou) {
+            CoTravel.Ctx.of(operatorPathCopy())
+        } else {
+            CoTravel.Ctx.None
+        }
+        val classById = config.fleets.associate { it.id to it.kind }
+        if (!filters.pass(
+                device,
+                config.filter,
+                travel,
+                classByFleetId = classById,
+                namedRadioKeys = RadioBookmarks.namedKeys(config.watchlist),
+                watchedFleetIds = RadioBookmarks.watchedFleetIds(config.watchlist),
+                alertDeviceKeys = RadioBookmarks.alertDeviceKeys(config.watchlist),
+                mineKeys = RadioBookmarks.mineKeys(config.watchlist),
+            )
+        ) return false
+        if (isHiddenByArrivals(device)) return false
+        return true
+    }
+
+    fun startScanning() {
+        val intent = Intent(this, ScanService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+    }
+
+    fun stopScanning() {
+        stopService(Intent(this, ScanService::class.java))
+    }
+
+    fun systemLocationOn(): Boolean {
+        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+        return if (android.os.Build.VERSION.SDK_INT >= 28) {
+            lm.isLocationEnabled
+        } else {
+            runCatching { lm.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrDefault(false) ||
+                runCatching { lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) }.getOrDefault(false)
+        }
+    }
+
+    fun gpsFixAgeMs(now: Long): Long? {
+        val at = lastFixAt
+        return if (at <= 0L) null else (now - at).coerceAtLeast(0L)
+    }
+
+    fun hasFineLocation(): Boolean =
+        androidx.core.content.ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+    fun syncLocationUpdates() {
+        if (config.settings.tagLocation && hasFineLocation()) startLocationUpdates()
+        else stopLocationUpdates()
+    }
+
+    fun startLocationUpdates() {
+        if (locating || !hasFineLocation()) return
+        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+        seedLastKnown(lm)
+        val looper = Looper.getMainLooper()
+        runCatching {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2_000L, 8f, gpsListener, looper)
+            }
+        }
+        runCatching {
+            if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4_000L, 15f, netListener, looper)
+            }
+        }
+        locating = true
+    }
+
+    fun stopLocationUpdates() {
+        if (!locating) return
+        runCatching {
+            val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+            lm.removeUpdates(gpsListener)
+            lm.removeUpdates(netListener)
+        }
+        locating = false
+    }
+
+    /** Start or stop the GNSS check. Safe to call often. The scan service waits past radio start. */
+    fun syncGnss() {
+        if (!::gnss.isInitialized || !::gnssProfile.isInitialized) return
+        if (gnss.isCalibrating) return
+        val ready = config.settings.gnssMonitor && gnssProfile.profile.value != null
+        if (!ready || !devices.stats.value.scanning) {
+            gnss.stop()
+            return
+        }
+        gnss.sync(config.settings, gnssProfile.profile.value)
+    }
+
+    private fun onProviderFix(loc: android.location.Location, gps: Boolean) {
+        acceptFix(loc)
+        if (::gnss.isInitialized) gnss.onTaggedFix(loc, gps)
+    }
+
+    fun refreshFix() {
+        if (!hasFineLocation()) return
+        runCatching {
+            seedLastKnown(getSystemService(LOCATION_SERVICE) as LocationManager)
+        }
+    }
+
+    private fun seedLastKnown(lm: LocationManager) {
+        val now = System.currentTimeMillis()
+        val cands = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+            .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
+            .filter { now - it.time < 30_000L && (!it.hasAccuracy() || it.accuracy <= 75f) }
+        val best = cands.minByOrNull { if (it.hasAccuracy()) it.accuracy else 75f } ?: return
+        acceptFix(best)
+    }
+
+    private fun acceptFix(loc: Location) {
+        if (loc.hasAccuracy() && loc.accuracy > 75f) return
+        val age = System.currentTimeMillis() - loc.time
+        if (age > 30_000L) return
+        lastFix = loc.latitude to loc.longitude
+        lastFixAt = loc.time
+        if (loc.hasSpeed() && loc.speed >= 0f && loc.speed.isFinite()) {
+            val loose = loc.hasSpeedAccuracy() && loc.speedAccuracyMetersPerSecond > 4f
+            if (!loose) {
+                speedMps = loc.speed.toDouble()
+                speedAt = System.currentTimeMillis()
+            }
+        }
+        recordOperatorFix(loc.latitude, loc.longitude, loc.time)
+    }
+
+    /** GPS speed in m/s, or null when the latest fix has no usable speed. */
+    fun floodSpeed(now: Long = System.currentTimeMillis()): Double? {
+        val speed = speedMps ?: return null
+        if (now - speedAt > 12_000L) return null
+        return speed
+    }
+
+    fun recordOperatorFix(lat: Double, lon: Double, at: Long = System.currentTimeMillis()) {
+        synchronized(pathLock) {
+            val last = operatorPath.lastOrNull()
+            if (last != null && !Geo.hopPlausible(last, lat, lon, at)) {
+                return
+            }
+            if (last != null && Geo.meters(last.lat, last.lon, lat, lon) < 15.0) {
+                operatorPath[operatorPath.lastIndex] = GpsSample(at, lat, lon)
+            } else {
+                if (last != null) {
+                    pathLengthM += Geo.meters(last.lat, last.lon, lat, lon)
+                }
+                operatorPath += GpsSample(at, lat, lon)
+                if (operatorPath.size > 80) {
+                    operatorPath.removeAt(0)
+                    pathLengthM = Geo.pathLengthM(operatorPath)
+                }
+            }
+        }
+        if (::sits.isInitialized) sits.recordPath(lat, lon, at)
+    }
+
+    fun operatorPathCopy(): List<GpsSample> = synchronized(pathLock) { operatorPath.toList() }
+
+    fun operatorPathLengthM(): Double = synchronized(pathLock) { pathLengthM }
+
+    fun resetFollowSession() {
+        synchronized(pathLock) {
+            operatorPath.clear()
+            pathLengthM = 0.0
+        }
+        devices.clearGpsTrails()
+    }
+
+    companion object {
+        private const val MAX_ARRIVAL_KEYS = 2_500
+    }
+}
+
+data class ArrivalsState(
+    val active: Boolean = false,
+    val knownKeys: Set<String> = emptySet(),
+    val learningUntil: Long = 0L,
+    val bufferStartedAt: Long = 0L,
+)

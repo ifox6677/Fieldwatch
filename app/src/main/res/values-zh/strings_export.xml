@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_kind_csv">日志文件 — CSV</string>
+    <string name="export_kind_jsonl">日志文件 — JSON lines</string>
+    <string name="export_kind_gpx">GPX — GPS 交换格式</string>
+    <string name="export_kind_kml">KML — Google Earth</string>
+    <string name="export_kind_wigle">WiGLE CSV — wigle.net</string>
+    <string name="export_radios_both">两种设备</string>
+    <string name="export_radios_wifi">仅 Wi-Fi</string>
+    <string name="export_radios_ble">仅 BLE</string>
+    <string name="export_observer">观察者：%1$s</string>
+    <string name="export_heard_here">在此手机听到。不是无线电定位。</string>
+    <string name="sit_export_subject">Fieldwatch sit %1$s（%2$s）</string>
+    <string name="sit_export_tag_csv">CSV</string>
+    <string name="sit_export_tag_jsonl">JSON lines</string>
+    <string name="sit_export_tag_gpx">GPX</string>
+    <string name="sit_export_tag_kml">KML</string>
+    <string name="sit_export_tag_wigle">WiGLE CSV</string>
+    <string name="sit_export_radios_all">设备</string>
+    <string name="sit_export_radios_wifi">Wi-Fi 设备</string>
+    <string name="sit_export_radios_ble">BLE 设备</string>
+    <string name="sit_export_no_radios">此 sit 中没有 %1$s。</string>
+    <string name="sit_export_no_gps_radios">此 sit 中没有带 GPS 标记的 %1$s。设置 → 为检测标记 GPS。</string>
+    <string name="export_operator_path">操作员路径</string>
+    <string name="export_kml_title">Fieldwatch %1$s 导出</string>
+</resources>

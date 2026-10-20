@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_import_summary">Restored Settings, the current filter, and %1$d %2$s. %3$d %4$s, %5$d %6$s.</string>
+    <string name="settings_import_preset_one">preset</string>
+    <string name="settings_import_preset_many">presets</string>
+    <string name="settings_import_radio_one">named radio</string>
+    <string name="settings_import_radio_many">named radios</string>
+    <string name="settings_import_watch_one">signature watch</string>
+    <string name="settings_import_watch_many">signature watches</string>
+    <string name="settings_import_empty">This file is empty.</string>
+    <string name="settings_import_not_pack">Not a Fieldwatch settings pack. Export from Settings → Export settings.</string>
+    <string name="settings_import_is_signature">That is a signature pack. Use Import signatures.</string>
+    <string name="settings_import_not_pack_json">Not a Fieldwatch settings pack (open a fieldwatch-settings JSON file).</string>
+    <string name="settings_import_blank">(blank)</string>
+    <string name="settings_tak_warning_on_and_dest">This file turns the TAK / CoT feed on and sets the destination to %1$s. The feed is plain UDP.</string>
+    <string name="settings_tak_warning_on">This file turns the TAK / CoT feed on. It sends plain UDP to %1$s.</string>
+    <string name="settings_tak_warning_dest_on">This file changes the TAK / CoT destination to %1$s. The feed is plain UDP and stays on.</string>
+    <string name="settings_tak_warning_dest_off">This file changes the TAK / CoT destination to %1$s. The feed stays off until you turn it on.</string>
+
+    <string name="sig_import_nothing">Nothing to import.</string>
+    <string name="sig_import_nothing_new">Nothing new. %1$d already on this phone.</string>
+    <string name="sig_import_added">Added %1$d</string>
+    <string name="sig_import_added_renamed">Added %1$d (%2$d renamed)</string>
+    <string name="sig_import_merged">merged extra rules on %1$d</string>
+    <string name="sig_import_skipped">skipped %1$d already present</string>
+    <string name="sig_import_join"> · </string>
+    <string name="sig_import_empty">This file is empty.</string>
+    <string name="sig_import_not_pack">Not a Fieldwatch signature pack. Export from Settings → Export signatures.</string>
+    <string name="sig_import_not_pack_json">Not a Fieldwatch signature pack (open a fieldwatch-signatures JSON file; spectre-signatures still imports).</string>
+    <string name="sig_import_none">This pack has no signatures.</string>
+    <string name="sig_import_none_stock">This pack has no stock signatures.</string>
+    <string name="sig_import_default_name">Imported signature</string>
+    <string name="sig_import_suffix">%1$s (imported)</string>
+    <string name="sig_import_suffix_n">%1$s (imported %2$d)</string>
+    <string name="preset_signatures_only">Signatures only</string>
+    <string name="catalog_import_no_version">This pack has no catalog version.</string>
+</resources>
